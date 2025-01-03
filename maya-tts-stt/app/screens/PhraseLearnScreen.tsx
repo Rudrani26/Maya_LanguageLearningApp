@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '..';
@@ -19,6 +19,7 @@ const PhraseLearnScreen = () => {
   const [progress, setProgress] = useState(0.1);
   const [input, setInput] = useState('');
   const [sound, setSound] = useState<Audio.Sound | null>(null); // State to manage sound
+  const [buttonPressed, setButtonPressed] = useState(false); // Track button press state
 
   const handleNext = () => {
     setProgress((prev) => Math.min(1, prev + 0.1));
@@ -26,7 +27,7 @@ const PhraseLearnScreen = () => {
   };
 
   const handlePlayPhrase = async () => {
-    const apiUrl = "https://13e5-2401-4900-1c20-5852-ac04-ae30-ad8f-3f5b.ngrok-free.app/generate-audio/"; // Replace with your ngrok URL
+    const apiUrl = "https://37d7-2401-4900-1c20-5852-ac04-ae30-ad8f-3f5b.ngrok-free.app/generate-audio/"; // Replace with your ngrok URL
     const data = { text: phrase.translation };   // Marathi text
 
     try {
@@ -85,9 +86,8 @@ const PhraseLearnScreen = () => {
 
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
-        <Animated.View
-          style={[styles.progressBar, { width: `${progressPercentage}%` }]}
-        />
+        <View
+          style={[styles.progressBar, { width: `${progressPercentage}%` }]}/>
       </View>
 
       {/* Phrase Card */}
@@ -104,19 +104,32 @@ const PhraseLearnScreen = () => {
 
       {/* Interaction Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handlePlayPhrase} style={styles.button}>
+        {/* Listen to Phrase Button */}
+        <TouchableOpacity
+          onPressIn={() => setButtonPressed(true)} // Momentarily set pressed state
+          onPressOut={() => setButtonPressed(false)} // Revert pressed state
+          onPress={handlePlayPhrase}
+          style={[styles.button, buttonPressed && styles.buttonPressed]} // Apply pressed state styling
+        >
           <Ionicons name="volume-high" size={24} color="#fff" />
           <Text style={styles.buttonText}>Listen to Phrase</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleStartSpeechRecognition} style={styles.button}>
+        {/* Speak the Phrase Button */}
+        <TouchableOpacity
+          onPressIn={() => setButtonPressed(true)} // Momentarily set pressed state
+          onPressOut={() => setButtonPressed(false)} // Revert pressed state
+          onPress={handleStartSpeechRecognition}
+          style={[styles.button, buttonPressed && styles.buttonPressed]} // Apply pressed state styling
+        >
           <Ionicons name="mic" size={24} color="#fff" />
           <Text style={styles.buttonText}>Speak the Phrase</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Next Phrase Button */}
+      {/* Next Phrase Button with Arrow */}
       <TouchableOpacity onPress={handleNext} style={styles.nextButton}>
+        <Ionicons name="arrow-forward" size={24} color="#fff" />
         <Text style={styles.nextButtonText}>Next Phrase</Text>
       </TouchableOpacity>
     </View>
@@ -225,6 +238,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Roboto',
   },
+  buttonPressed: {
+    backgroundColor: '#F2D16A', // Yellow on press
+    transform: [{ scale: 0.98 }], // Slight shrink effect on press
+  },
   nextButton: {
     backgroundColor: '#3a3a3a',
     paddingVertical: 15,
@@ -235,12 +252,14 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 350,
     elevation: 5,
+    flexDirection: 'row',
   },
   nextButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Poppins',
+    marginLeft: 10,
   },
 });
 
