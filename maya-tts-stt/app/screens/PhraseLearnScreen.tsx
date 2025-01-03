@@ -6,6 +6,8 @@ import { RootStackParamList } from '..';
 import { Ionicons } from '@expo/vector-icons'; // For TTS and STT icons
 import { Phrase } from '../constants/phrases';
 import * as Speech from 'expo-speech';
+import * as FileSystem from 'expo-file-system'; // For file system operations
+import { Audio } from 'expo-av'; // For playing audio
 
 const { width } = Dimensions.get('window');
 
@@ -16,20 +18,57 @@ const PhraseLearnScreen = () => {
 
   const [progress, setProgress] = useState(0.1);
   const [input, setInput] = useState('');
+  const [sound, setSound] = useState<Audio.Sound | null>(null); // State to manage sound
 
   const handleNext = () => {
     setProgress((prev) => Math.min(1, prev + 0.1));
     navigation.goBack(); // Placeholder for advancing to the next phrase
   };
 
-  const handlePlayPhrase = () => {
-    // Use expo-speech to speak the phrase in Marathi
-    Speech.speak(phrase.translation, {
-      language: 'mr-IN', // Marathi language
-      pitch: 1, // Adjust pitch if needed
-      rate: 1, // Adjust rate of speech
-    });
-    console.log("Playing phrase:", phrase.translation);
+  const handlePlayPhrase = async () => {
+    const apiUrl = "https://13e5-2401-4900-1c20-5852-ac04-ae30-ad8f-3f5b.ngrok-free.app/generate-audio/"; // Replace with your ngrok URL
+    const data = { text: phrase.translation };   // Marathi text
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      // Check if the response is valid
+      if (!response.ok) {
+        throw new Error("Failed to generate audio");
+      }
+
+      const audioBlob = await response.blob(); // Get the audio blob from the response
+
+      // Convert the audio blob to ArrayBuffer using FileReader
+      const arrayBuffer = await blobToArrayBuffer(audioBlob);
+
+      // Convert ArrayBuffer to Base64 string
+      const base64String = arrayBufferToBase64(arrayBuffer);
+
+      // Save the audio file to a local file path using FileSystem
+      const fileUri = FileSystem.documentDirectory + 'audiofile.wav';
+      await FileSystem.writeAsStringAsync(fileUri, base64String, {
+        encoding: FileSystem.EncodingType.Base64, // Write the audio as base64 encoded
+      });
+
+      // Load and play the audio using expo-av
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: fileUri },
+        { shouldPlay: true }
+      );
+
+      setSound(sound); // Save the sound object to state
+
+      console.log("Playing phrase:", phrase.translation);
+    } catch (error) {
+      console.error("Error generating TTS:", error);
+    }
   };
 
   const handleStartSpeechRecognition = () => {
@@ -82,6 +121,26 @@ const PhraseLearnScreen = () => {
       </TouchableOpacity>
     </View>
   );
+};
+
+// Helper function to convert Blob to ArrayBuffer
+const blobToArrayBuffer = (blob: Blob): Promise<ArrayBuffer> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(blob);
+  });
+};
+
+// Helper function to convert ArrayBuffer to Base64
+const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+  const uint8Array = new Uint8Array(buffer);
+  let binaryString = '';
+  uint8Array.forEach(byte => {
+    binaryString += String.fromCharCode(byte);
+  });
+  return btoa(binaryString); // Convert binary string to Base64
 };
 
 const styles = StyleSheet.create({
