@@ -27,7 +27,7 @@ const PhraseLearnScreen = () => {
   };
 
   const handlePlayPhrase = async () => {
-    const apiUrl = "https://37d7-2401-4900-1c20-5852-ac04-ae30-ad8f-3f5b.ngrok-free.app/generate-audio/"; // Replace with your ngrok URL
+    const apiUrl = "https://ae64-2401-4900-1c20-5852-f8ac-f9f3-2b65-6ccb.ngrok-free.app/generate-audio/"; // Replace with your ngrok URL
     const data = { text: phrase.translation };   // Marathi text
 
     try {

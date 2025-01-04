@@ -1,5 +1,3 @@
-# tts_service.py
-
 import torch
 from parler_tts import ParlerTTSForConditionalGeneration
 from transformers import AutoTokenizer
@@ -45,7 +43,7 @@ def generate_tts_audio(text: str, description: str = None) -> str:
         # Convert output to audio array
         audio_arr = generation.cpu().numpy().squeeze()
 
-        # Save audio to file and return path
+        # Save audio to .wav file
         output_path = "output_audio.wav"  # Default path for saving the audio file
         sf.write(output_path, audio_arr, model.config.sampling_rate)
 
@@ -53,20 +51,3 @@ def generate_tts_audio(text: str, description: str = None) -> str:
 
     except Exception as e:
         raise RuntimeError(f"Error generating TTS audio: {str(e)}")
-
-
-def save_audio(audio_path: str, save_path: str = "output_audio.mp3"):
-    """
-    Save the generated audio to a specific path.
-    Args:
-        audio_path (str): Path to the generated audio file.
-        save_path (str): Path to save the audio as MP3. Defaults to "output_audio.mp3".
-    """
-    try:
-        # You can use an audio library like `pydub` to convert .wav to .mp3
-        from pydub import AudioSegment
-
-        audio = AudioSegment.from_file(audio_path, format="wav")
-        audio.export(save_path, format="mp3")
-    except Exception as e:
-        raise RuntimeError(f"Error saving audio file: {str(e)}")
