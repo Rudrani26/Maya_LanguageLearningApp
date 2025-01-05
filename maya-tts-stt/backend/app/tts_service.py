@@ -2,6 +2,10 @@ import torch
 from parler_tts import ParlerTTSForConditionalGeneration
 from transformers import AutoTokenizer
 import soundfile as sf
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Check device
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -21,17 +25,20 @@ def generate_tts_audio(text: str, description: str = None) -> str:
         str: Path to the generated audio file.
     """
     try:
-        # Use a default description if none is provided
         if not description:
             description = (
                 "A female speaker with a neutral accent delivers a clear and moderately paced speech."
             )
 
+        logging.info(f"Tokenizing description and text for TTS generation.")
+        
         # Tokenize description and text
         description_tokenizer = AutoTokenizer.from_pretrained(model.config.text_encoder._name_or_path)
         description_input_ids = description_tokenizer(description, return_tensors="pt").to(device)
         prompt_input_ids = tokenizer(text, return_tensors="pt").to(device)
 
+        logging.info("Generating TTS audio...")
+        
         # Generate speech
         generation = model.generate(
             input_ids=description_input_ids.input_ids,
@@ -43,11 +50,12 @@ def generate_tts_audio(text: str, description: str = None) -> str:
         # Convert output to audio array
         audio_arr = generation.cpu().numpy().squeeze()
 
-        # Save audio to .wav file
-        output_path = "output_audio.wav"  # Default path for saving the audio file
+        output_path = "output_audio.wav"
         sf.write(output_path, audio_arr, model.config.sampling_rate)
 
+        logging.info(f"TTS audio saved to {output_path}")
         return output_path
 
     except Exception as e:
+        logging.error(f"Error generating TTS audio: {str(e)}")
         raise RuntimeError(f"Error generating TTS audio: {str(e)}")

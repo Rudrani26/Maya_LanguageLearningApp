@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '..';
 import { Ionicons } from '@expo/vector-icons'; // For TTS and STT icons
 import { Phrase } from '../constants/phrases';
-import * as Speech from 'expo-speech';
 import * as FileSystem from 'expo-file-system'; // For file system operations
 import { Audio } from 'expo-av'; // For playing audio
+import axios from 'axios'; // For API requests
+import base64js from 'base64-js'; // For Base64 encoding
 
 const { width } = Dimensions.get('window');
+
+// Axios instance for API requests
+const apiClient = axios.create({
+  baseURL: "http://192.168.1.2:8000", // Replace with your local IP address
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 const PhraseLearnScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -17,7 +26,6 @@ const PhraseLearnScreen = () => {
   const { phrase } = route.params as { phrase: Phrase };
 
   const [progress, setProgress] = useState(0.1);
-  const [input, setInput] = useState('');
   const [sound, setSound] = useState<Audio.Sound | null>(null); // State to manage sound
   const [buttonPressed, setButtonPressed] = useState(false); // Track button press state
 
@@ -27,45 +35,33 @@ const PhraseLearnScreen = () => {
   };
 
   const handlePlayPhrase = async () => {
-    const apiUrl = "https://ae64-2401-4900-1c20-5852-f8ac-f9f3-2b65-6ccb.ngrok-free.app/generate-audio/"; // Replace with your ngrok URL
-    const data = { text: phrase.translation };   // Marathi text
-
+    const data = { text: phrase.translation }; // Marathi text
+  
     try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      const response = await apiClient.post("/generate-audio/", data, {
+        responseType: "arraybuffer", // Receive the audio file as binary data
       });
-
-      // Check if the response is valid
-      if (!response.ok) {
+  
+      if (response.status !== 200) {
         throw new Error("Failed to generate audio");
       }
-
-      const audioBlob = await response.blob(); // Get the audio blob from the response
-
-      // Convert the audio blob to ArrayBuffer using FileReader
-      const arrayBuffer = await blobToArrayBuffer(audioBlob);
-
-      // Convert ArrayBuffer to Base64 string
-      const base64String = arrayBufferToBase64(arrayBuffer);
-
-      // Save the audio file to a local file path using FileSystem
+  
+      // Convert the ArrayBuffer to Base64 using base64-js
+      const base64Audio = base64js.fromByteArray(new Uint8Array(response.data));
+  
+      // Save the audio file to the device storage
       const fileUri = FileSystem.documentDirectory + 'audiofile.wav';
-      await FileSystem.writeAsStringAsync(fileUri, base64String, {
-        encoding: FileSystem.EncodingType.Base64, // Write the audio as base64 encoded
+      await FileSystem.writeAsStringAsync(fileUri, base64Audio, {
+        encoding: FileSystem.EncodingType.Base64, // Save the audio as a Base64 encoded string
       });
-
+  
       // Load and play the audio using expo-av
       const { sound } = await Audio.Sound.createAsync(
-        { uri: fileUri },
+        { uri: fileUri }, // Use the fileUri directly, pointing to the saved file
         { shouldPlay: true }
       );
-
+  
       setSound(sound); // Save the sound object to state
-
       console.log("Playing phrase:", phrase.translation);
     } catch (error) {
       console.error("Error generating TTS:", error);
@@ -87,7 +83,8 @@ const PhraseLearnScreen = () => {
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View
-          style={[styles.progressBar, { width: `${progressPercentage}%` }]}/>
+          style={[styles.progressBar, { width: `${progressPercentage}%` }]}
+        />
       </View>
 
       {/* Phrase Card */}
@@ -136,32 +133,12 @@ const PhraseLearnScreen = () => {
   );
 };
 
-// Helper function to convert Blob to ArrayBuffer
-const blobToArrayBuffer = (blob: Blob): Promise<ArrayBuffer> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as ArrayBuffer);
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(blob);
-  });
-};
-
-// Helper function to convert ArrayBuffer to Base64
-const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
-  const uint8Array = new Uint8Array(buffer);
-  let binaryString = '';
-  uint8Array.forEach(byte => {
-    binaryString += String.fromCharCode(byte);
-  });
-  return btoa(binaryString); // Convert binary string to Base64
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    alignItems: 'center', // Center align content
-    justifyContent: 'center', // Center align content
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
   },
   header: {
