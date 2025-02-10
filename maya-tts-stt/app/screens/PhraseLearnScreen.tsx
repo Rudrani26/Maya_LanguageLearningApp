@@ -21,8 +21,9 @@ const PhraseLearnScreen = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const { isRecording, startRecording, stopRecording } = useAudioRecording();
-  // const [isLoading, setIsLoading] = useState(false);
   const { playTTS, isLoading } = useOptimizedTTS();
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const progressAnim = new Animated.Value(progress);
 
@@ -47,50 +48,103 @@ const PhraseLearnScreen = () => {
     }
   };
 
+  // Add this to your component's state declarations
+
+
   const handlePlayPhrase = async () => {
     try {
-      await playTTS(
-        phrase.translation,
-      );
+      // Prevent multiple simultaneous playbacks
+      if (isPlaying) {
+        return;
+      }
+      setIsPlaying(true);
 
-      // Create a temporary file path
-      const tempFilePath = FileSystem.documentDirectory + 'temp_audio.wav';
+      // First, cleanup any existing sound
+      if (sound) {
+        await sound.unloadAsync();
+        setSound(null);
+      }
 
-      // Convert blob to base64 using FileReader
-      const fr = new FileReader();
-      fr.onload = async () => {
-        const base64Data = (fr.result as string).split(',')[1];
+      // Set up audio mode
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+      });
 
-        // Write the audio data to a temporary file
-        await FileSystem.writeAsStringAsync(tempFilePath, base64Data, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
+      // Generate speech using TTS
+      await playTTS(phrase.translation);
 
-        // Play the audio using Expo's Audio API
-        const soundObject = new Audio.Sound();
-        await soundObject.loadAsync({ uri: tempFilePath });
-        await soundObject.playAsync();
+      // Create a unique temporary file path
+      const tempFilePath = `${FileSystem.documentDirectory}temp_audio_${Date.now()}.wav`;
 
-        // Clean up after playing
-        soundObject.setOnPlaybackStatusUpdate(async (status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            await soundObject.unloadAsync();
-            // Delete the temporary file
-            await FileSystem.deleteAsync(tempFilePath, { idempotent: true });
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onerror = () => reject(new Error('Failed to read audio data'));
+
+        fr.onload = async () => {
+          try {
+            const base64Data = (fr.result as string).split(',')[1];
+            await FileSystem.writeAsStringAsync(tempFilePath, base64Data, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+
+            const newSound = new Audio.Sound();
+            await newSound.loadAsync({ uri: tempFilePath });
+            setSound(newSound);
+
+            // Set up completion handler
+            newSound.setOnPlaybackStatusUpdate(async (status) => {
+              if (status.isLoaded && status.didJustFinish) {
+                setIsPlaying(false);
+                // Clean up after playback
+                await cleanup(tempFilePath);
+              }
+            });
+
+            await newSound.playAsync();
+            resolve(undefined);
+          } catch (error) {
+            await cleanup(tempFilePath);
+            reject(error);
           }
-        });
-      };
-
-
+        };
+      });
 
     } catch (error: any) {
       console.error('TTS error:', error);
       Alert.alert(
         'Error',
-        'Failed to play audio. Please try again.' + (error.message ? `\n\nDetails: ${error.message}` : '')
+        'Failed to play audio. Please try again.' +
+        (error.message ? `\n\nDetails: ${error.message}` : '')
       );
+    } finally {
+      setIsPlaying(false);
     }
   };
+
+  // Separate cleanup function
+  const cleanup = async (tempFilePath: string) => {
+    try {
+      if (sound) {
+        await sound.unloadAsync();
+        setSound(null);
+      }
+      if (tempFilePath) {
+        await FileSystem.deleteAsync(tempFilePath, { idempotent: true });
+      }
+    } catch (cleanupError) {
+      console.error('Cleanup error:', cleanupError);
+    }
+  };
+
+  // Add this useEffect to clean up when component unmounts
+  useEffect(() => {
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [sound]);
 
   const calculateSimilarity = (str1: string, str2: string): number => {
     const maxLength = Math.max(str1.length, str2.length);
