@@ -302,7 +302,7 @@ const PhraseLearnScreen = () => {
           <Text style={styles.transcriptionLabel}>Your speech:</Text>
           <Text style={styles.transcriptionText}>{transcribedText}</Text>
           {accuracy !== null && (
-            <Text style={[styles.accuracyText, { color: getAccuracyColor(accuracy) }]}>
+            <Text style={[styles.accuracyText, { color: '#3884fd' }]}>
               Accuracy: {accuracy}%
             </Text>
           )}
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#3884fd',
     borderRadius: 5,
   },
   card: {
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#3884fd',
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 30,

@@ -18,6 +18,18 @@ from pydub import AudioSegment
 from pathlib import Path as PathLib
 from transformers import AutoTokenizer, VitsModel
 
+from langchain.chains import LLMChain
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+)
+from langchain_core.messages import SystemMessage
+from langchain.chains.conversation.memory import ConversationBufferWindowMemory
+from langchain_groq import ChatGroq
+import os
+from dotenv import load_dotenv
+
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -223,3 +235,74 @@ async def text_to_speech(request: TTSRequest):
         logger.error(error_msg)
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=error_msg)
+    
+# ----- Chatbot Integration -----
+load_dotenv(dotenv_path=".env")
+groq_api_key = os.getenv("GROQ_API_KEY")
+if not groq_api_key:
+    raise Exception("GROQ_API_KEY is not set in the environment variables.")
+else:
+    logger.info("GROQ_API_KEY loaded successfully.")
+
+model_name = "llama3-70b-8192"
+try:
+    groq_chat = ChatGroq(groq_api_key=groq_api_key, model_name=model_name)
+    logger.info("ChatGroq model initialized successfully.")
+except Exception as e:
+    logger.error(f"Error initializing ChatGroq model: {e}")
+    raise Exception("Failed to initialize ChatGroq model.")
+
+system_prompt = "You are a Marathi-English tutor. You will answer questions and assist with translations and corrections."
+conversational_memory_length = 5
+memory = ConversationBufferWindowMemory(
+    k=conversational_memory_length, memory_key="chat_history", return_messages=True
+)
+
+logger.info(f"System prompt: {system_prompt}")
+logger.info(f"Conversation memory length set to: {conversational_memory_length}")
+
+class ChatRequest(BaseModel):
+    question: str
+
+@app.post("/chat/")
+async def chat_with_bot(request: ChatRequest):
+    logger.info(f"Received chatbot query: {request.question}")
+    try:
+        # Log the structure of the prompt template
+        logger.debug("Building ChatPromptTemplate with system prompt and memory placeholder...")
+        prompt_template = ChatPromptTemplate.from_messages([
+            SystemMessage(content=system_prompt),
+            MessagesPlaceholder(variable_name="chat_history"),
+            HumanMessagePromptTemplate.from_template("{input}"),
+        ])
+        logger.debug("ChatPromptTemplate built successfully.")
+        
+        # Log memory state before processing
+        logger.debug(f"Current chat memory: {memory.load_memory_variables({})}")
+
+        # Create the chat chain
+        logger.debug("Initializing LLMChain...")
+        chat_chain = LLMChain(
+            llm=groq_chat,
+            prompt=prompt_template,
+            memory=memory,
+        )
+        logger.debug("LLMChain initialized successfully.")
+
+        # Run the chat chain with the input question
+        logger.info(f"Processing user question: {request.question}")
+        response = chat_chain.run(input=request.question)
+        logger.info(f"Chatbot response: {response}")
+
+        # Log memory state after processing
+        logger.debug(f"Updated chat memory: {memory.load_memory_variables({})}")
+
+        return {"response": response.strip()}
+
+    except Exception as e:
+        # Log detailed traceback and error message
+        error_msg = f"Error processing chatbot query: {str(e)}"
+        logger.error(error_msg)
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_msg)
+
