@@ -1,1 +1,3 @@
-# MayaTTS-STT
+# Maya
+
+Marathi Language Learning App for Tourists
