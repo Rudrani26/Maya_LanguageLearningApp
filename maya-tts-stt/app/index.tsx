@@ -5,7 +5,7 @@ import HomeScreen from './screens/HomeScreen';
 import PhraseListScreen from './screens/PhraseListScreen';
 import PhraseLearnScreen from './screens/PhraseLearnScreen';
 import ChatBot from './screens/ChatBot'
-import HomePage from './screens/HomePage';
+// import HomePage from './screens/HomePage';
 
 // Define the RootStackParamList for navigation
 export type RootStackParamList = {
@@ -22,7 +22,7 @@ const App = () => {
   return (
     <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="MaryamHome" component={HomePage} />
+      {/* <Stack.Screen name="MaryamHome" component={HomePage} /> */}
       <Stack.Screen name="PhraseList" component={PhraseListScreen} />
       <Stack.Screen name="PhraseLearn" component={PhraseLearnScreen} />
       <Stack.Screen name="ChatBot" component={ChatBot} />
