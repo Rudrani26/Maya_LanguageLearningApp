@@ -32,9 +32,12 @@ const ChatBot = () => {
       console.log('[ChatBot] Sending message to backend:', input);
 
       // Make API request
-      const response = await axios.post('http://192.168.1.16:8000/chat/', {
-        question: input,
-      });
+      const response = await axios.post(
+        "https://e2f6-60-254-18-102.ngrok-free.app/chat/",
+        {
+          question: input,
+        }
+      );
 
       console.log('[ChatBot] Received response from backend:', response.data);
 
