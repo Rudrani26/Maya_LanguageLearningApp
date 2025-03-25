@@ -5,10 +5,13 @@ import HomeScreen from './screens/HomeScreen';
 import PhraseListScreen from './screens/PhraseListScreen';
 import PhraseLearnScreen from './screens/PhraseLearnScreen';
 import ChatBot from './screens/ChatBot'
-// import HomePage from './screens/HomePage';
+import Login from './(auth)/Login';
+import Signup from './(auth)/Signup';
 
 // Define the RootStackParamList for navigation
 export type RootStackParamList = {
+  Signup: undefined;
+  Login: undefined;
   Home: undefined;
   PhraseList: { module: string };
   PhraseLearn: { phrase: { phrase: string; translation: string; transliteration: string }; module: string };
@@ -20,12 +23,17 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
-    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName="Signup"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="Signup" component={Signup} />
+      <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Home" component={HomeScreen} />
-      {/* <Stack.Screen name="MaryamHome" component={HomePage} /> */}
       <Stack.Screen name="PhraseList" component={PhraseListScreen} />
       <Stack.Screen name="PhraseLearn" component={PhraseLearnScreen} />
       <Stack.Screen name="ChatBot" component={ChatBot} />
+
       {/* <Stack.Screen name="Community" component={PhraseLearnScreen} /> */}
     </Stack.Navigator>
   );
