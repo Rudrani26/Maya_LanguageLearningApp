@@ -6,7 +6,6 @@ import { RootStackParamList } from '..';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 const HomeScreen = () => {
@@ -62,7 +61,11 @@ const HomeScreen = () => {
 
         <TouchableOpacity
           style={[styles.card, { backgroundColor: "#FF9800" }]}
-          onPress={() => navigation.navigate("PhraseList", { module: "Hotel" })}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Hotel" },
+            })}
         >
           <FontAwesome5 name="hotel" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Hotel</Text>

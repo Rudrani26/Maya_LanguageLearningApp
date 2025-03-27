@@ -11,7 +11,7 @@ import UserTextInput from "../components/UserTextInput";
 import { router } from "expo-router";
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { setDoc ,doc} from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 
 const Signup = () => {
   // const fontsLoaded = useFonts();
@@ -37,9 +37,7 @@ const Signup = () => {
 
           // defining a doc for the collection, and passing data to it
           setDoc(doc(firestoreDB, "users", userCred?.user.uid), data).then(
-            () => {
-              router.push("/Login");
-            }
+            () => router.push("/Login")
           );
         }
       );

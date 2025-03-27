@@ -1,19 +1,12 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-// import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-// import { RootStackParamList } from '..';
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Phrase, phrases } from '../constants/phrases';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from "expo-router";
 
 const PhraseListScreen = () => {
-  // const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute();
   const router = useRouter();
-
-  // Extract module name from route params
-  const { module } = route.params as { module: string };
+  const { module } = useLocalSearchParams<{ module: string }>();
 
   // Retrieve the list of phrases for the selected module
   const modulePhrases = phrases[module] || [];
@@ -69,8 +62,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     marginHorizontal: 10,
-    transform: [{ scale: 1 }],
-    // transition: 'all 0.2s ease-in-out',
   },
   cardContent: {
     flexDirection: 'row',

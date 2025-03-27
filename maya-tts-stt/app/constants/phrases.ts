@@ -7,7 +7,7 @@ export type Phrase = {
 
 // Define the type for the phrases object
 export type Phrases = {
-  [key: string]: Phrase[];
+  [key: string]: Phrase[]; // The keys are strings (e.g., "Greetings", "Survival", etc.)
 };
 
 export const phrases: Phrases = {

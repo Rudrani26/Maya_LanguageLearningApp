@@ -31,7 +31,7 @@ const UserTextInput: React.FC<UserTextInputProps> = ({
     setValue(text);
     setStateValue(text);
 
-    if(placeholder === "Email"){
+    if (placeholder === "Email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const status = emailRegex.test(text);
       setIsEmailValid(status);
@@ -56,9 +56,9 @@ const UserTextInput: React.FC<UserTextInputProps> = ({
   }, [placeholder]);
 
   return (
-    <View style={[styles.Main , !isEmailValid && placeholder === "Email" && value.length >0 ? styles.borderRed : styles.borderGray]
+    <View style={[styles.Main, !isEmailValid && placeholder === "Email" && value.length > 0 ? styles.borderRed : styles.borderGray]
     }>
-      {icon && <MaterialIcons name={icon} size={24} color={"#6c6d83"} />}
+      {icon && <MaterialIcons name={icon as keyof typeof MaterialIcons.glyphMap} size={24} color={"#6c6d83"} />}
       <TextInput
         style={styles.field}
         placeholder={placeholder}

@@ -5,8 +5,7 @@ import Store from "../context/store";
 export default function RootLayout() {
   return (
     <Provider store={Store}>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }} />
     </Provider>
   );
-
 }

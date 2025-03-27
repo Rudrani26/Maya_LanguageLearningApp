@@ -18,6 +18,7 @@ import {
   addDoc,
   collection,
   doc,
+  DocumentData,
   onSnapshot,
   orderBy,
   query,
@@ -26,7 +27,6 @@ import {
 import { firestoreDB } from "@/config/firebase.config";
 import { useSelector } from "react-redux";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { icons } from "../../constants";
 import { useLocalSearchParams } from "expo-router";
 
 const ChatScreen = () => {
@@ -34,8 +34,8 @@ const ChatScreen = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const user = useSelector((state) => state.user.user);
+  const [messages, setMessages] = useState<DocumentData[]>([]);
+  const user = useSelector((state: { user: { user: any } }) => state.user.user);
   const textInputRef = useRef(null);
   // const { room, image } = route.params;
 
@@ -71,7 +71,7 @@ const ChatScreen = () => {
     return unsubscribe;
   }, [room?._id]);
 
-  const uploadImageAndSendMessage = async (image) => {
+  const uploadImageAndSendMessage = async (image: string | URL | Request) => {
     const response = await fetch(image);
     const blob = await response.blob();
     const imageRef = ref(storage, `chats/${room._id}/images/${Date.now()}`);
@@ -83,7 +83,7 @@ const ChatScreen = () => {
     sendMessage(imageUrl);
   };
 
-  const sendMessage = async (imageUrl = null) => {
+  const sendMessage = async (imageUrl: string | null = null) => {
     const timeStamp = serverTimestamp();
     const id = `${Date.now()}`;
     const _doc = {
@@ -141,12 +141,12 @@ const ChatScreen = () => {
                       {
                         alignSelf:
                           msg.user?.providerData?.email ===
-                          user?.providerData?.email
+                            user?.providerData?.email
                             ? "flex-end"
                             : "flex-start",
                         flexDirection:
                           msg.user?.providerData?.email ===
-                          user?.providerData?.email
+                            user?.providerData?.email
                             ? "row-reverse"
                             : "row",
                       },
@@ -154,11 +154,11 @@ const ChatScreen = () => {
                   >
                     {msg.user?.providerData?.email !==
                       user?.providerData?.email && (
-                      <Image
-                        source={{ uri: "path_to_default_profile_image" }} // Update to the correct path or a default image
-                        style={styles.profileImage}
-                      />
-                    )}
+                        <Image
+                          source={{ uri: "path_to_default_profile_image" }} // Update to the correct path or a default image
+                          style={styles.profileImage}
+                        />
+                      )}
                     <View>
                       <Text style={styles.userName}>
                         {msg.user?.fullName || "Unknown"}
@@ -169,7 +169,7 @@ const ChatScreen = () => {
                           {
                             backgroundColor:
                               msg.user?.providerData?.email ===
-                              user?.providerData?.email
+                                user?.providerData?.email
                                 ? "#43C651" // Replace with your secondary color
                                 : "#E0E0E0", // Replace with your gray color
                           },
