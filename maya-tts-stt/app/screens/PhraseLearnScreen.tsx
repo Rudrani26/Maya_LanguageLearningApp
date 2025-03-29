@@ -3,18 +3,19 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated, ActivityIndicator, 
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '..';
 import { Phrase } from '../constants/phrases';
 import useAudioRecording from '../hooks/useAudioRecording';
 import api from '../services/axiosConfig';
 import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { useOptimizedTTS } from '../hooks/audioPlayer';
+import { RootStackParamList } from '..';
+import { useLocalSearchParams } from 'expo-router';
 
 const PhraseLearnScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute();
-  const { phrase } = route.params as { phrase: Phrase };
+  const { phrase: phraseString } = useLocalSearchParams<{ phrase: string }>();
+  const phrase: Phrase = JSON.parse(phraseString);
 
   const [progress, setProgress] = useState(0.1);
   const [transcribedText, setTranscribedText] = useState('');
@@ -205,6 +206,9 @@ const PhraseLearnScreen = () => {
         <Text style={styles.value}>{phrase.translation}</Text>
 
         <Text style={styles.label}>Pronunciation:</Text>
+        <Text style={styles.value}>{phrase.pronunciation}</Text>
+
+        <Text style={styles.label}>Transliteration:</Text>
         <Text style={styles.value}>{phrase.transliteration}</Text>
       </View>
 

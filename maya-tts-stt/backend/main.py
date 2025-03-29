@@ -8,7 +8,9 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from pyparsing import lru_cache
+# from pyparsing import Tuple, lru_cache
+from typing import Tuple  
+from functools import lru_cache
 import torchaudio
 import torch
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
@@ -125,72 +127,113 @@ async def transcribe_audio(file: UploadFile = File(...)):
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=error_msg)
 
-
-# Cache directory for audio files
+# Cache directory setup
 CACHE_DIR = PathLib(tempfile.gettempdir()) / "tts_cache"
 CACHE_DIR.mkdir(exist_ok=True)
-logger.info(f"Cache directory for TTS audio files: {CACHE_DIR}")
+logger = logging.getLogger(__name__)
 
 @lru_cache(maxsize=1)
-def get_tts_components():
-    logger.info("Loading TTS model and tokenizer...")
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    model = VitsModel.from_pretrained("facebook/mms-tts-mar").to(device)
-    tokenizer = AutoTokenizer.from_pretrained("facebook/mms-tts-mar")
-    logger.info("TTS model and tokenizer loaded successfully.")
-    return model, tokenizer, device
+def get_tts_components() -> Tuple[VitsModel, AutoTokenizer, str]:
+    """Initialize TTS components with error handling"""
+    try:
+        logger.info("Loading TTS model and tokenizer...")
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        model = VitsModel.from_pretrained("facebook/mms-tts-mar").to(device)
+        tokenizer = AutoTokenizer.from_pretrained("facebook/mms-tts-mar")
+        logger.info(f"TTS model and tokenizer loaded successfully on {device}")
+        return model, tokenizer, device
+    except Exception as e:
+        logger.error(f"Failed to load TTS components: {str(e)}")
+        raise RuntimeError(f"Failed to initialize TTS components: {str(e)}")
 
 def get_cache_key(text: str) -> str:
-    logger.debug(f"Generating cache key for text: {text}")
-    return f"{hash(text)}"
+    """Generate a unique cache key for the text"""
+    return f"tts_{hash(text)}_{int(time.time())}"
 
 def get_cached_audio_path(cache_key: str) -> PathLib:
-    path = CACHE_DIR / f"{cache_key}.wav"
-    logger.debug(f"Cache path for key {cache_key}: {path}")
-    return path
+    """Get the full path for cached audio file"""
+    return CACHE_DIR / f"{cache_key}.wav"
+
+def generate_audio(text: str, model: VitsModel, tokenizer: AutoTokenizer, device: str) -> np.ndarray:
+    """Generate audio with proper error handling"""
+    try:
+        inputs = tokenizer(text, return_tensors="pt").to(device)
+        with torch.no_grad():
+            output = model(**inputs).waveform
+        return output.cpu().numpy().squeeze()
+    except Exception as e:
+        logger.error(f"Failed to generate audio: {str(e)}")
+        raise RuntimeError(f"Audio generation failed: {str(e)}")
 
 class TTSRequest(BaseModel):
     text: str
 
 @app.post("/tts/")
 async def text_to_speech(request: TTSRequest):
+    """Enhanced TTS endpoint with proper error handling and file management"""
     logger.info(f"Received TTS request for text: {request.text}")
+    
     try:
+        # Generate a unique cache key for each request
         cache_key = get_cache_key(request.text)
         cache_path = get_cached_audio_path(cache_key)
 
-        if cache_path.exists():
-            logger.info(f"Returning cached audio for text: {request.text}")
-            return FileResponse(path=cache_path, media_type="audio/wav", filename="speech.wav")
+        # Clean up old cache files
+        for old_file in CACHE_DIR.glob("tts_*.wav"):
+            if time.time() - old_file.stat().st_mtime > 3600:  # Clean files older than 1 hour
+                try:
+                    old_file.unlink()
+                except Exception as e:
+                    logger.warning(f"Failed to delete old cache file {old_file}: {str(e)}")
 
+        # Generate new audio
         model, tokenizer, device = get_tts_components()
+        audio_arr = generate_audio(request.text, model, tokenizer, device)
 
-        logger.info("Tokenizing input text.")
-        inputs = tokenizer(request.text, return_tensors="pt").to(device)
-
-        logger.info("Generating audio waveform.")
-        with torch.no_grad():
-            output = model(**inputs).waveform
-
-        # audio_arr = output.cpu().numpy().squeeze()
-        # sf.write(str(cache_path), audio_arr, model.config.sampling_rate)
-
-        # Convert tensor to numpy array
-        audio_arr = output.cpu().numpy().squeeze()
-
-        # Apply slow-down effect by resampling
+        # Apply slowdown effect
         original_rate = model.config.sampling_rate
         slowed_rate = int(original_rate * 0.95)  # Slow down by 5%
 
-        # Save slowed-down audio
-        sf.write(str(cache_path), audio_arr, slowed_rate)
+        # Ensure audio array is valid
+        if not np.isfinite(audio_arr).all():
+            raise ValueError("Generated audio contains invalid values")
 
-        logger.info(f"Audio generated and saved at {cache_path}")
+        # Normalize audio to prevent clipping
+        audio_arr = np.clip(audio_arr, -1.0, 1.0)
 
-        return FileResponse(path=cache_path, media_type="audio/wav", filename="speech.wav")
+        # Save audio with proper error handling
+        try:
+            sf.write(
+                str(cache_path),
+                audio_arr,
+                slowed_rate,
+                format='WAV',
+                subtype='PCM_16'
+            )
+        except Exception as e:
+            logger.error(f"Failed to save audio file: {str(e)}")
+            raise RuntimeError(f"Failed to save audio file: {str(e)}")
+
+        # Verify file was created and is readable
+        if not cache_path.exists() or cache_path.stat().st_size == 0:
+            raise RuntimeError("Generated audio file is empty or not created")
+
+        logger.info(f"Audio generated successfully and saved at {cache_path}")
+
+        # Return file with explicit headers
+        return FileResponse(
+            path=cache_path,
+            media_type="audio/wav",
+            filename="speech.wav",
+            headers={
+                "Content-Disposition": "attachment; filename=speech.wav",
+                "Accept-Ranges": "bytes",
+                "Cache-Control": "no-cache"
+            }
+        )
 
     except Exception as e:
-        error_msg = f"Error generating speech: {str(e)}"
+        error_msg = f"Error in TTS processing: {str(e)}"
         logger.error(error_msg)
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=error_msg)

@@ -4,76 +4,124 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '..';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-
+  const router = useRouter();
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.header}>Language Learning</Text>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#4CAF50' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Greetings' })}
+          style={[styles.card, { backgroundColor: "#4CAF50" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Greetings" },
+            })
+          }
         >
           <MaterialCommunityIcons name="hand-wave" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Greetings</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#2196F3' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Travel' })}
+          style={[styles.card, { backgroundColor: "#2196F3" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Travel" },
+            })
+          }
         >
-          <MaterialCommunityIcons name="airplane-takeoff" size={50} color="#fff" />
+          <MaterialCommunityIcons
+            name="airplane-takeoff"
+            size={50}
+            color="#fff"
+          />
           <Text style={styles.cardTitle}>Travel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#E91E63' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Emergency' })}
+          style={[styles.card, { backgroundColor: "#E91E63" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Emergency" },
+            })
+          }
         >
           <MaterialCommunityIcons name="alert-circle" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Emergency</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#FF9800' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Hotel' })}
+          style={[styles.card, { backgroundColor: "#FF9800" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Hotel" },
+            })}
         >
           <FontAwesome5 name="hotel" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Hotel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#8BC34A' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Restaurant' })}
+          style={[styles.card, { backgroundColor: "#8BC34A" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Restaurant" },
+            })
+          }
         >
-          <MaterialCommunityIcons name="silverware-fork-knife" size={50} color="#fff" />
+          <MaterialCommunityIcons
+            name="silverware-fork-knife"
+            size={50}
+            color="#fff"
+          />
           <Text style={styles.cardTitle}>Restaurant</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#9C27B0' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Shopping' })}
+          style={[styles.card, { backgroundColor: "#9C27B0" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Shopping" },
+            })
+          }
         >
           <MaterialCommunityIcons name="shopping" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Shopping</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#03A9F4' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Sightseeing' })}
+          style={[styles.card, { backgroundColor: "#03A9F4" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Sightseeing" },
+            })
+          }
         >
           <MaterialCommunityIcons name="binoculars" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Sightseeing</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: '#FF5722' }]}
-          onPress={() => navigation.navigate('PhraseList', { module: 'Health' })}
+          style={[styles.card, { backgroundColor: "#FF5722" }]}
+          onPress={() =>
+            router.push({
+              pathname: "/screens/PhraseListScreen",
+              params: { module: "Health" },
+            })
+          }
         >
           <Ionicons name="medkit" size={50} color="#fff" />
           <Text style={styles.cardTitle}>Health</Text>
@@ -82,22 +130,34 @@ const HomeScreen = () => {
 
       {/* Bottom Navbar */}
       <View style={styles.navbar}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => router.push("/")}
+        >
           <Ionicons name="home" size={28} color="#4CAF50" />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => router.push("/screens/Chat")}
+        >
           <Ionicons name="people" size={28} color="#FF9800" />
           <Text style={styles.navText}>Community</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ChatBot')}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => router.push("/screens/ChatBot")}
+        >
           <Ionicons name="chatbox-ellipses" size={28} color="#2196F3" />
           <Text style={styles.navText}>Live Chat</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => router.push("/screens/HomeScreen")}
+        >
           <Ionicons name="person" size={28} color="#9C27B0" />
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
