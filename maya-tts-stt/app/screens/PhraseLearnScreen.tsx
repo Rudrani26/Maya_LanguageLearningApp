@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '..';
 import { Phrase } from '../constants/phrases';
 import useAudioRecording from '../hooks/useAudioRecording';
 import api from '../services/axiosConfig';
@@ -10,7 +11,6 @@ import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { useOptimizedTTS } from '../hooks/audioPlayer';
 import { useLocalSearchParams } from 'expo-router';
-import { RootStackParamList } from '..';
 
 const APP_COLORS = {
   moduleColors: [
@@ -41,10 +41,9 @@ const APP_COLORS = {
 
 const PhraseLearnScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute();
-  const { phrase } = route.params as { phrase: Phrase };
   const { phrase: phraseString, module } = useLocalSearchParams<{ phrase: string, module: string }>();
   const phrase: Phrase = JSON.parse(phraseString);
+
   const [moduleColorIndex, setModuleColorIndex] = useState(0);
   const [progress, setProgress] = useState(0.1);
   const [transcribedText, setTranscribedText] = useState('');
@@ -290,7 +289,7 @@ const PhraseLearnScreen = () => {
 
         <Text style={[styles.label, { color: labelColor }]}>Transliteration:</Text>
         <Text style={[styles.value, { color: textColor }]}>{phrase.transliteration}</Text>
-      </View >
+      </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -323,40 +322,36 @@ const PhraseLearnScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {
-        isProcessing && (
-          <View style={styles.processingContainer}>
-            <ActivityIndicator size="large" color={moduleColor} />
-            <Text style={[styles.processingText, { color: '#000000' }]}>Processing audio...</Text>
-          </View>
-        )
-      }
+      {isProcessing && (
+        <View style={styles.processingContainer}>
+          <ActivityIndicator size="large" color={moduleColor} />
+          <Text style={[styles.processingText, { color: '#000000' }]}>Processing audio...</Text>
+        </View>
+      )}
 
-      {
-        transcribedText && (
-          <View style={[styles.transcriptionContainer, {
-            backgroundColor: '#FFFFFF',
-            borderLeftWidth: 5,
-            borderLeftColor: moduleColor,
-            shadowColor: moduleColor
-          }]}>
-            <Text style={[styles.transcriptionLabel, { color: labelColor }]}>Your speech:</Text>
-            <Text style={[styles.transcriptionText, { color: textColor }]}>{transcribedText}</Text>
-            {accuracy !== null && (
-              <View style={styles.accuracyContainer}>
-                <Text style={[styles.accuracyText, { color: getAccuracyColor(accuracy) }]}>
-                  Accuracy: {accuracy}%
-                </Text>
-                {accuracy >= 70 ? (
-                  <Ionicons name="checkmark-circle" size={24} color={getAccuracyColor(accuracy)} />
-                ) : (
-                  <Ionicons name="refresh-circle" size={24} color={getAccuracyColor(accuracy)} />
-                )}
-              </View>
-            )}
-          </View>
-        )
-      }
+      {transcribedText && (
+        <View style={[styles.transcriptionContainer, {
+          backgroundColor: '#FFFFFF',
+          borderLeftWidth: 5,
+          borderLeftColor: moduleColor,
+          shadowColor: moduleColor
+        }]}>
+          <Text style={[styles.transcriptionLabel, { color: labelColor }]}>Your speech:</Text>
+          <Text style={[styles.transcriptionText, { color: textColor }]}>{transcribedText}</Text>
+          {accuracy !== null && (
+            <View style={styles.accuracyContainer}>
+              <Text style={[styles.accuracyText, { color: getAccuracyColor(accuracy) }]}>
+                Accuracy: {accuracy}%
+              </Text>
+              {accuracy >= 70 ? (
+                <Ionicons name="checkmark-circle" size={24} color={getAccuracyColor(accuracy)} />
+              ) : (
+                <Ionicons name="refresh-circle" size={24} color={getAccuracyColor(accuracy)} />
+              )}
+            </View>
+          )}
+        </View>
+      )}
 
       <TouchableOpacity
         onPress={handleNext}
@@ -368,7 +363,7 @@ const PhraseLearnScreen = () => {
         <Text style={styles.nextButtonText}>Next Phrase</Text>
         <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
       </TouchableOpacity>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 };
 

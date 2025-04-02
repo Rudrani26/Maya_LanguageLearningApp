@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Dimensions,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -32,7 +33,7 @@ const APP_COLORS = {
   border: '#E0E0E0',
   navbar: '#F8F9FA',
   navbarIcon: '#3884fd',
-  avatarBackground: '#D6EFFF', 
+  avatarBackground: '#D6EFFF',
   moduleColors: [
     '#FF6B8A',  // Pink
     '#71CDDC',  // Light Blue
@@ -49,28 +50,27 @@ const ChatBot = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [typingAnimation, setTypingAnimation] = useState(false);
-  
+
   const flatListRef = useRef<FlatList<Message> | null>(null);
-  const animationRef = useRef<LottieView>(null);
-  
+
   // Add initial message when component mounts
   useEffect(() => {
     setMessages([
-      { 
-        id: '1', 
-        text: 'Hello! I am your Marathi AI Assistant. How can I assist you today?', 
-        sender: 'bot' 
+      {
+        id: '1',
+        text: 'Hello! I am your Marathi AI Assistant. How can I assist you today?',
+        sender: 'bot'
       },
     ]);
   }, []);
-  
+
   // Scroll to bottom when messages change
   useEffect(() => {
     if (flatListRef.current && messages.length > 0) {
       flatListRef.current.scrollToEnd({ animated: true });
     }
   }, [messages]);
-  
+
   const sendMessage = async () => {
     if (input.trim().length === 0) return;
 
@@ -78,7 +78,7 @@ const ChatBot = () => {
     const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user' };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    
+
     // Show typing animation
     setTypingAnimation(true);
 
@@ -87,7 +87,7 @@ const ChatBot = () => {
       console.log('[ChatBot] Sending message to backend:', input);
 
       // Make API request
-      const response = await axios.post('http://192.168.1.13:8000/chat/', {
+      const response = await axios.post('http://192.168.29.231:8000/chat/', {
         question: input,
       });
 
@@ -96,7 +96,7 @@ const ChatBot = () => {
       // Add a small delay to show typing animation
       setTimeout(() => {
         setTypingAnimation(false);
-        
+
         // Add bot's response
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -106,13 +106,13 @@ const ChatBot = () => {
         setMessages(prev => [...prev, botMessage]);
         setLoading(false);
       }, 1000);
-      
+
     } catch (error) {
       console.error('[ChatBot] Error sending message to backend:', error);
-      
+
       setTimeout(() => {
         setTypingAnimation(false);
-        
+
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           text: 'Something went wrong. Please try again later.',
@@ -131,12 +131,9 @@ const ChatBot = () => {
         {!isUser && (
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <LottieView
-                ref={animationRef}
-                source={require('../assets/animations/robot-wave.json')}
-                autoPlay
-                loop
-                style={styles.avatarAnimation}
+              <Image
+                source={require('../assets/images/robot.png')}
+                style={styles.avatarImage}
               />
             </View>
           </View>
@@ -150,19 +147,17 @@ const ChatBot = () => {
       </View>
     );
   };
-  
+
   const renderTypingIndicator = () => {
     if (!typingAnimation) return null;
-    
+
     return (
       <View style={[styles.messageContainer, styles.botMessage]}>
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
-            <LottieView
-              source={require('../assets/animations/robot-wave.json')}
-              autoPlay
-              loop
-              style={styles.avatarAnimation}
+            <Image
+              source={require('../assets/images/robot.png')}
+              style={styles.avatarImage}
             />
           </View>
         </View>
@@ -192,7 +187,7 @@ const ChatBot = () => {
             <Ionicons name="settings-outline" size={24} color={APP_COLORS.navbarIcon} />
           </View>
         </View>
-        
+
         {/* Message List */}
         <KeyboardAvoidingView
           style={styles.keyboardAvoid}
@@ -207,7 +202,7 @@ const ChatBot = () => {
             contentContainerStyle={styles.messageList}
             ListFooterComponent={renderTypingIndicator}
           />
-          
+
           {/* Input Section */}
           <View style={styles.inputContainer}>
             <TouchableOpacity style={styles.attachButton}>
@@ -221,12 +216,12 @@ const ChatBot = () => {
               onChangeText={setInput}
               multiline
             />
-            <TouchableOpacity 
-              onPress={sendMessage} 
+            <TouchableOpacity
+              onPress={sendMessage}
               style={[
                 styles.sendButton,
                 { backgroundColor: input.trim().length > 0 ? APP_COLORS.navbarIcon : '#E0E0E0' }
-              ]} 
+              ]}
               disabled={loading || input.trim().length === 0}
             >
               {loading ? (
@@ -300,14 +295,15 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: APP_COLORS.avatarBackground, 
+    backgroundColor: APP_COLORS.avatarBackground,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
-  avatarAnimation: {
-    width: 40,
-    height: 40,
+  avatarImage: {
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
   },
   spacer: {
     width: 32,

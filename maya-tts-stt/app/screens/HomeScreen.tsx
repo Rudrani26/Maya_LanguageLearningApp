@@ -152,15 +152,6 @@ const HomeScreen = () => {
         router.push("/screens/ChatBot");
       }
     },
-    {
-      iconName: 'person-outline',
-      activeIconName: 'person',
-      label: 'Profile',
-      onPress: () => {
-        setActiveTab('Profile');
-        // Profile not implemented yet
-      }
-    },
   ];
 
   return (
