@@ -1,31 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, ActivityIndicator, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '..';
 import { Phrase } from '../constants/phrases';
 import useAudioRecording from '../hooks/useAudioRecording';
 import api from '../services/axiosConfig';
 import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { useOptimizedTTS } from '../hooks/audioPlayer';
-import { RootStackParamList } from '..';
 import { useLocalSearchParams } from 'expo-router';
+
+const APP_COLORS = {
+  moduleColors: [
+    '#FF6B8A',  // Pink
+    '#FFD166',  // Yellow
+    '#71CDDC',  // Light Blue
+    '#9370DB',  // Medium Purple
+    '#A0D568',  // Light Green
+    '#F47ACD',  // Bright Pink
+    '#E9C46A',  // Gold
+    '#6C9AFF',  // Blue
+    '#D9A5F3',  // Lavender
+    '#FF9F65',  // Orange
+  ],
+  moduleNames: [
+    'Greetings',
+    'Travel',
+    'Hotel',
+    'Restaurant',
+    'Shopping',
+    'Sightseeing',
+    'Health',
+    'SocializingNetworking',
+    'WorkRelatedTravel',
+    'TechSupport'
+  ]
+};
 
 const PhraseLearnScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { phrase: phraseString } = useLocalSearchParams<{ phrase: string }>();
+  const { phrase: phraseString, module } = useLocalSearchParams<{ phrase: string, module: string }>();
   const phrase: Phrase = JSON.parse(phraseString);
 
+  const [moduleColorIndex, setModuleColorIndex] = useState(0);
   const [progress, setProgress] = useState(0.1);
   const [transcribedText, setTranscribedText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const { isRecording, startRecording, stopRecording } = useAudioRecording();
-  // const [isLoading, setIsLoading] = useState(false);
   const { playTTS, isLoading } = useOptimizedTTS();
 
   const progressAnim = new Animated.Value(progress);
+
+  const getLighterShade = (hex: string, percent: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    const light = percent / 100;
+    const newR = Math.min(255, r + (255 - r) * light);
+    const newG = Math.min(255, g + (255 - g) * light);
+    const newB = Math.min(255, b + (255 - b) * light);
+
+    return `rgb(${Math.round(newR)}, ${Math.round(newG)}, ${Math.round(newB)})`;
+  };
+
+  const getDarkerShade = (hex: string, percent: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    const dark = percent / 100;
+    const newR = Math.max(0, r * (1 - dark));
+    const newG = Math.max(0, g * (1 - dark));
+    const newB = Math.max(0, b * (1 - dark));
+
+    return `rgb(${Math.round(newR)}, ${Math.round(newG)}, ${Math.round(newB)})`;
+  };
+
+  useEffect(() => {
+    const index = APP_COLORS.moduleNames.findIndex(name => name === module);
+    setModuleColorIndex(index !== -1 ? index : 0);
+  }, [module]);
+
+  const moduleColor = APP_COLORS.moduleColors[moduleColorIndex];
 
   useEffect(() => {
     Animated.timing(progressAnim, {
@@ -50,9 +110,7 @@ const PhraseLearnScreen = () => {
 
   const handlePlayPhrase = async () => {
     try {
-      await playTTS(
-        phrase.translation,
-      );
+      await playTTS(phrase.translation);
 
       // Create a temporary file path
       const tempFilePath = FileSystem.documentDirectory + 'temp_audio.wav';
@@ -81,8 +139,6 @@ const PhraseLearnScreen = () => {
           }
         });
       };
-
-
 
     } catch (error: any) {
       console.error('TTS error:', error);
@@ -180,9 +236,26 @@ const PhraseLearnScreen = () => {
     return '#F44336';
   };
 
+  const headerBackground = moduleColor;
+  const buttonBackground = moduleColor;
+  const buttonTextColor = '#FFFFFF';
+  const textColor = '#000000';
+  const labelColor = '#000000';
+  const progressBarColor = moduleColor;
+  const nextButtonColor = accuracy !== null && accuracy > 70 ? getDarkerShade(moduleColor, 20) : '#cccccc';
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Learn This Phrase</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+      {/* Header Section */}
+      <View style={[styles.headerContainer, { backgroundColor: headerBackground }]}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.header}>Learn This Phrase</Text>
+      </View>
 
       <View style={styles.progressContainer}>
         <Animated.View
@@ -193,48 +266,57 @@ const PhraseLearnScreen = () => {
                 inputRange: [0, 1],
                 outputRange: ['0%', '100%'],
               }),
+              backgroundColor: progressBarColor,
             },
           ]}
         />
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>English Phrase:</Text>
-        <Text style={styles.value}>{phrase.phrase}</Text>
+      <View style={[styles.card, {
+        backgroundColor: '#FFFFFF',
+        borderLeftWidth: 5,
+        borderLeftColor: moduleColor,
+        shadowColor: moduleColor
+      }]}>
+        <Text style={[styles.label, { color: labelColor }]}>English Phrase:</Text>
+        <Text style={[styles.value, { color: textColor }]}>{phrase.phrase}</Text>
 
-        <Text style={styles.label}>Translation:</Text>
-        <Text style={styles.value}>{phrase.translation}</Text>
+        <Text style={[styles.label, { color: labelColor }]}>Translation:</Text>
+        <Text style={[styles.value, { color: textColor }]}>{phrase.translation}</Text>
 
-        <Text style={styles.label}>Pronunciation:</Text>
-        <Text style={styles.value}>{phrase.pronunciation}</Text>
+        <Text style={[styles.label, { color: labelColor }]}>Pronunciation:</Text>
+        <Text style={[styles.value, { color: textColor }]}>{phrase.pronunciation}</Text>
 
-        <Text style={styles.label}>Transliteration:</Text>
-        <Text style={styles.value}>{phrase.transliteration}</Text>
+        <Text style={[styles.label, { color: labelColor }]}>Transliteration:</Text>
+        <Text style={[styles.value, { color: textColor }]}>{phrase.transliteration}</Text>
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={handlePlayPhrase}
-          style={styles.button}
+          style={[styles.button, { backgroundColor: buttonBackground }]}
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={buttonTextColor} />
           ) : (
             <>
-              <Ionicons name="volume-high" size={24} color="#fff" />
-              <Text style={styles.buttonText}>Listen</Text>
+              <Ionicons name="volume-high" size={24} color={buttonTextColor} />
+              <Text style={[styles.buttonText, { color: buttonTextColor }]}>Listen</Text>
             </>
           )}
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleStartSpeechRecognition}
-          style={[styles.button, isRecording && styles.recordingButton]}
+          style={[
+            styles.button,
+            { backgroundColor: isRecording ? '#ff4444' : buttonBackground }
+          ]}
           disabled={isProcessing}
         >
-          <Ionicons name={isRecording ? 'stop' : 'mic'} size={24} color="#fff" />
-          <Text style={styles.buttonText}>
+          <Ionicons name={isRecording ? 'stop' : 'mic'} size={24} color={buttonTextColor} />
+          <Text style={[styles.buttonText, { color: buttonTextColor }]}>
             {isRecording ? 'Stop' : 'Record'}
           </Text>
         </TouchableOpacity>
@@ -242,19 +324,31 @@ const PhraseLearnScreen = () => {
 
       {isProcessing && (
         <View style={styles.processingContainer}>
-          <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={styles.processingText}>Processing audio...</Text>
+          <ActivityIndicator size="large" color={moduleColor} />
+          <Text style={[styles.processingText, { color: '#000000' }]}>Processing audio...</Text>
         </View>
       )}
 
       {transcribedText && (
-        <View style={styles.transcriptionContainer}>
-          <Text style={styles.transcriptionLabel}>Your speech:</Text>
-          <Text style={styles.transcriptionText}>{transcribedText}</Text>
+        <View style={[styles.transcriptionContainer, {
+          backgroundColor: '#FFFFFF',
+          borderLeftWidth: 5,
+          borderLeftColor: moduleColor,
+          shadowColor: moduleColor
+        }]}>
+          <Text style={[styles.transcriptionLabel, { color: labelColor }]}>Your speech:</Text>
+          <Text style={[styles.transcriptionText, { color: textColor }]}>{transcribedText}</Text>
           {accuracy !== null && (
-            <Text style={[styles.accuracyText, { color: '#3884fd' }]}>
-              Accuracy: {accuracy}%
-            </Text>
+            <View style={styles.accuracyContainer}>
+              <Text style={[styles.accuracyText, { color: getAccuracyColor(accuracy) }]}>
+                Accuracy: {accuracy}%
+              </Text>
+              {accuracy >= 70 ? (
+                <Ionicons name="checkmark-circle" size={24} color={getAccuracyColor(accuracy)} />
+              ) : (
+                <Ionicons name="refresh-circle" size={24} color={getAccuracyColor(accuracy)} />
+              )}
+            </View>
           )}
         </View>
       )}
@@ -263,66 +357,81 @@ const PhraseLearnScreen = () => {
         onPress={handleNext}
         style={[
           styles.nextButton,
-          (!accuracy || accuracy <= 70) && styles.nextButtonDisabled,
+          { backgroundColor: nextButtonColor }
         ]}
       >
         <Text style={styles.nextButtonText}>Next Phrase</Text>
+        <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+  },
+  headerContainer: {
+    padding: 20,
+    paddingTop: 35,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
+    marginBottom: 15,
+  },
+  backButton: {
+    marginRight: 15,
+    padding: 5,
   },
   header: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#3a3a3a',
-    marginBottom: 20,
-    textAlign: 'center',
-    fontFamily: 'Poppins',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    flex: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   progressContainer: {
     height: 8,
-    width: '100%',
+    width: '90%',
     backgroundColor: '#e0e0e0',
     borderRadius: 5,
-    marginBottom: 20,
+    marginVertical: 15,
     overflow: 'hidden',
+    alignSelf: 'center',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#3884fd',
     borderRadius: 5,
   },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 15,
     padding: 25,
-    width: '100%',
-    maxWidth: 350,
+    width: '90%',
+    alignSelf: 'center',
     marginBottom: 20,
     elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
   label: {
     fontSize: 16,
-    color: '#3a3a3a',
     marginBottom: 5,
     fontWeight: '600',
   },
   value: {
     fontSize: 18,
-    color: '#333',
     marginBottom: 15,
     fontFamily: 'Roboto',
   },
@@ -330,78 +439,94 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 20,
-    width: '100%',
-    maxWidth: 350,
+    width: '90%',
+    alignSelf: 'center',
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3884fd',
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 30,
     width: '45%',
     justifyContent: 'center',
     elevation: 4,
-  },
-  recordingButton: {
-    backgroundColor: '#ff4444',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   buttonText: {
-    color: '#fff',
     marginLeft: 10,
     fontSize: 16,
     fontFamily: 'Roboto',
+    fontWeight: '500',
   },
   processingContainer: {
-    marginTop: 20,
+    marginVertical: 20,
     alignItems: 'center',
   },
   processingText: {
     marginTop: 10,
-    color: '#666',
     fontSize: 16,
   },
   transcriptionContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    width: '100%',
+    marginTop: 10,
+    marginBottom: 20,
+    padding: 20,
+    borderRadius: 15,
+    width: '90%',
+    alignSelf: 'center',
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
   transcriptionLabel: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   transcriptionText: {
     fontSize: 16,
-    color: '#333',
+    marginBottom: 10,
   },
-  nextButton: {
-    backgroundColor: '#3a3a3a',
-    paddingVertical: 15,
-    borderRadius: 10,
+  accuracyContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
-    width: '100%',
-    maxWidth: 350,
+    marginTop: 10,
+  },
+  accuracyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginRight: 10,
+  },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    borderRadius: 30,
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   nextButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Poppins',
-  },
-  accuracyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  nextButtonDisabled: {
-    backgroundColor: '#cccccc',
+    marginRight: 10,
   },
 });
 

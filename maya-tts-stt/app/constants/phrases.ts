@@ -3,7 +3,7 @@ export type Phrase = {
   phrase: string;
   translation: string;
   transliteration: string;
-  pronunciation: string;  // Added pronunciation field
+  pronunciation: string; // Added pronunciation field
 };
 
 // Define the type for the phrases object
@@ -12,31 +12,31 @@ export type Phrases = {
 };
 
 export const phrases: Phrases = {
-  Greetings: [
+  "Greetings": [
     { phrase: 'Hello', translation: 'नमस्कार', transliteration: 'Namaskar', pronunciation: 'nuh-muhs-kar' },
     { phrase: 'Good morning', translation: 'सुप्रभात', transliteration: 'Suprabhat', pronunciation: 'soo-prah-bhaat' },
     { phrase: 'Good evening', translation: 'शुभ संध्याकाळ', transliteration: 'Shubh sandhyakal', pronunciation: 'shubh san-dhyaa-kaal' },
     { phrase: 'How are you?', translation: 'तुम्ही कसे आहात?', transliteration: 'Tumhi kase aahat?', pronunciation: 'tum-hee kah-say aa-haat' },
-    { phrase: 'What’s your name?', translation: 'तुमचं नाव काय आहे?', transliteration: 'Tumcha naav kay aahe?', pronunciation: 'tum-chuh naav kaa-y aa-haay' },
+    { phrase: 'What is your name?', translation: 'तुमचं नाव काय आहे?', transliteration: 'Tumcha naav kay aahe?', pronunciation: 'tum-chuh naav kaa-y aa-haay' },
     { phrase: 'Nice to meet you', translation: 'तुमचं भेटून आनंद झाला', transliteration: 'Tumcha bhetun anand zala', pronunciation: 'tum-chuh bhae-tun aa-nand zaa-la' },
     { phrase: 'How do you do?', translation: 'कसें करता?', transliteration: 'Kase kartat?', pronunciation: 'kah-say kar-tat' },
     { phrase: 'Good night', translation: 'शुभ रात्री', transliteration: 'Shubh raatri', pronunciation: 'shubh raa-tree' },
     { phrase: 'See you later', translation: 'नंतर भेटू', transliteration: 'Nantar bhetu', pronunciation: 'naan-tar bhae-too' },
     { phrase: 'Take care', translation: 'काळजी घ्या', transliteration: 'Kalji ghya', pronunciation: 'kaal-jee ghyaa' },
   ],
-  Emergency: [
+  "Emergency": [
     { phrase: 'Help!', translation: 'मदत!', transliteration: 'Madat!', pronunciation: 'muh-dut' },
     { phrase: 'Call the police!', translation: 'पोलीसांना कॉल करा!', transliteration: 'Polisanna call kara!', pronunciation: 'po-lee-saa-nna kol ka-raa' },
-    { phrase: 'I’m lost', translation: 'मी हरवले आहे', transliteration: 'Mi haravale aahe', pronunciation: 'mee ha-ra-va-lay aa-haay' },
+    { phrase: 'I am lost', translation: 'मी हरवले आहे', transliteration: 'Mi haravale aahe', pronunciation: 'mee ha-ra-va-lay aa-haay' },
     { phrase: 'I need a doctor', translation: 'माझ्या डॉक्टरची आवश्यकता आहे', transliteration: 'Majhya doctorchi avashyakta aahe', pronunciation: 'maa-jhyaa doc-tor-chee avash-yak-ta aa-haay' },
-    { phrase: 'I don’t understand', translation: 'माझ्या समजत नाही', transliteration: 'Majha samajat nahi', pronunciation: 'maa-jhaa sa-ma-jat naa-hee' },
+    { phrase: 'I do not understand', translation: 'माझ्या समजत नाही', transliteration: 'Majha samajat nahi', pronunciation: 'maa-jhaa sa-ma-jat naa-hee' },
     { phrase: 'Can you help me?', translation: 'तुम्ही माझी मदत करू शकता का?', transliteration: 'Tumhi maazhi madat karu shakta ka?', pronunciation: 'tum-hee maa-jee muh-dut ka-roo shak-ta kaa' },
     { phrase: 'I am hungry', translation: 'मला भूक लागली आहे', transliteration: 'Mala bhook lagli aahe', pronunciation: 'maa-laa bhook laa-glee aa-haay' },
     { phrase: 'Where is the bathroom?', translation: 'बाथरूम कुठे आहे?', transliteration: 'Bathroom kuthe aahe?', pronunciation: 'bath-room koo-thay aa-haay' },
     { phrase: 'I need water', translation: 'माझ्या पाण्याची आवश्यकता आहे', transliteration: 'Majhya paanyachi avashyakta aahe', pronunciation: 'maa-jhyaa paa-nyaa-chee avash-yak-ta aa-haay' },
     { phrase: 'Can you speak English?', translation: 'तुम्ही इंग्रजी बोलू शकता का?', transliteration: 'Tumhi English bolu shakta ka?', pronunciation: 'tum-hee ing-ru-jee bo-loo shak-ta kaa' },
   ],
-  Travel: [
+  "Travel": [
     { phrase: 'Where is the station?', translation: 'स्टेशन कुठे आहे?', transliteration: 'Station kuthe aahe?', pronunciation: 'Stay-shun koo-thay aa-he' },
     { phrase: 'How far is the airport?', translation: 'विमानतळ किती दूर आहे?', transliteration: 'Vimantala kiti door aahe?', pronunciation: 'Vee-maan-tul ki-tee door aa-he' },
     { phrase: 'I need a taxi', translation: 'मला टॅक्सी हवी आहे', transliteration: 'Mala taxi havi aahe', pronunciation: 'Maa-la taek-see ha-vee aa-he' },
@@ -48,8 +48,7 @@ export const phrases: Phrases = {
     { phrase: 'What is the best way to get to the market?', translation: 'बाजारात पोहोचण्यासाठी सर्वोत्तम मार्ग कोणता आहे?', transliteration: 'Bajarat pohchanyasathi sarvottam marg konta aahe?', pronunciation: 'Baa-zaa-raat po-ho-cha-nyaa-saa-thee sar-vot-tum maar-g kon-taa aa-he' },
     { phrase: 'Can you recommend a good restaurant?', translation: 'तुम्ही चांगल्या रेस्टॉरंटची शिफारस करू शकता का?', transliteration: 'Tumhi changlya restaurant chi shifaras karu shakta ka?', pronunciation: 'Tum-hee chang-lya rest-o-rant chi shi-faa-ras ka-roo shak-taa ka?' },
   ],
-
-Hotel: [
+  "Hotel": [
     { phrase: 'I have a reservation', translation: 'माझं आरक्षण आहे', transliteration: 'Majha aarakhshan aahe', pronunciation: 'Maa-jha aa-rak-shun aa-he' },
     { phrase: 'Do you have a room available?', translation: 'तुमच्याकडे खोली उपलब्ध आहे का?', transliteration: 'Tumchyakade kholi uplabdh aahe ka?', pronunciation: 'Tum-chyaa-ka-day kho-lee up-lub-dh aa-he ka?' },
     { phrase: 'What is the room rate?', translation: 'खोलीचा दर काय आहे?', transliteration: 'Kholicha dar kay aahe?', pronunciation: 'Kho-lee-chaa dar kaa-ee aa-he?' },
@@ -61,9 +60,9 @@ Hotel: [
     { phrase: 'Can I check out late?', translation: 'मी उशिरा चेक आउट करू शकतो का?', transliteration: 'Mi ushira check out karu shakto ka?', pronunciation: 'Mee oo-shee-raa check out ka-roo shak-to ka?' },
     { phrase: 'The key is not working', translation: 'की काम करत नाही', transliteration: 'Key kaam kart nahi', pronunciation: 'Kee kaam kart naa-hee' },
   ],
-  Restaurant: [
+  "Restaurant": [
     { phrase: 'Can I see the menu?', translation: 'मला मेनू दाखवू शकता का?', transliteration: 'Mala menu dakhavu shakta ka?', pronunciation: 'Maa-la may-noo daa-kha-voo shak-taa ka?' },
-    { phrase: 'What are today’s specials?', translation: 'आजच्या खास डिशेस काय आहेत?', transliteration: 'Aajchya khaas dishes kay aahet?', pronunciation: 'Aaj-chyaa khaas di-shes kaa-ee aa-het?' },
+    { phrase: "What are today's specials?", translation: 'आजच्या खास डिशेस काय आहेत?', transliteration: 'Aajchya khaas dishes kay aahet?', pronunciation: 'Aaj-chyaa khaas di-shes kaa-ee aa-het?' },
     { phrase: 'I am vegetarian', translation: 'मी शाकाहारी आहे', transliteration: 'Mi shakahaari aahe', pronunciation: 'Mee shaa-kaa-haa-ree aa-he' },
     { phrase: 'Do you have vegan options?', translation: 'तुमच्याकडे व्हेगन पर्याय आहेत का?', transliteration: 'Tumchyakade vegan paryay aahet ka?', pronunciation: 'Tum-chyaa-ka-day vay-gan par-yaa-ya aa-het ka?' },
     { phrase: 'I need water', translation: 'माझ्या पाण्याची आवश्यकता आहे', transliteration: 'Majhya paanyachi avashyakta aahe', pronunciation: 'Maa-jhyaa paa-nyaa-chee aa-vash-yak-taa aa-he' },
@@ -73,7 +72,7 @@ Hotel: [
     { phrase: 'Can I pay by card?', translation: 'मी कार्डने पैसे देऊ शकतो का?', transliteration: 'Mi cardne paise deu shakto ka?', pronunciation: 'Mee card-nay pai-se dey-oo shak-to ka?' },
     { phrase: 'Thank you for the service', translation: 'सेवेसाठी धन्यवाद', transliteration: 'Sevesathi dhanyavad', pronunciation: 'Se-vay-saa-thee dha-nya-vaa-d' },
   ],
-Shopping: [
+  "Shopping": [
     { phrase: 'How much does this cost?', translation: 'याची किंमत किती आहे?', transliteration: 'Yachi kimat kiti aahe?', pronunciation: 'Yaa-chee kee-mat kee-tee aa-he?' },
     { phrase: 'Can you give me a discount?', translation: 'तुम्ही मला डिस्काउंट देऊ शकता का?', transliteration: 'Tumhi mala discount deu shakto ka?', pronunciation: 'Tum-hee maa-la dis-count dey-oo shak-taa ka?' },
     { phrase: 'I am just looking', translation: 'मी फक्त पाहतोय', transliteration: 'Mi fakta pahtoy', pronunciation: 'Mee fak-taa paa-ha-toy' },
@@ -85,7 +84,7 @@ Shopping: [
     { phrase: 'Can I return this item?', translation: 'मी हा आयटम परत करू शकतो का?', transliteration: 'Mi ha item parat karu shakto ka?', pronunciation: 'Mee haa i-tem pa-rut ka-roo shak-to ka?' },
     { phrase: 'This is too expensive', translation: 'हे खूप महाग आहे', transliteration: 'He khup mahag aahe', pronunciation: 'Hey khoop ma-haag aa-he' },
   ],
-  Sightseeing: [
+  "Sightseeing": [
     { phrase: 'Where is the nearest tourist spot?', translation: 'सर्वात जवळचं पर्यटन स्थळ कुठे आहे?', transliteration: 'Sarvat jawalcha paryatan sthala kuthe aahe?', pronunciation: 'Sar-vaat ja-wal-chaa pa-rya-tan stha-la koo-thay aa-he?' },
     { phrase: 'What is the entry fee?', translation: 'प्रवेश शुल्क किती आहे?', transliteration: 'Pravesh shulk kiti aahe?', pronunciation: 'Pra-vaysh shoolk kee-tee aa-he?' },
     { phrase: 'Are there guided tours available?', translation: 'गाईडेड टूर्स उपलब्ध आहेत का?', transliteration: 'Guided tours uplabdh aahet ka?', pronunciation: 'Gaa-ee-deyd tours oop-lub-dh aa-het ka?' },
@@ -97,7 +96,7 @@ Shopping: [
     { phrase: 'Is there a souvenir shop here?', translation: 'इथे स्मरणिका दुकान आहे का?', transliteration: 'Ithe smaranika dukaan aahe ka?', pronunciation: 'I-thay sma-ra-nee-kaa doo-kaan aa-he ka?' },
     { phrase: 'Where is the parking lot?', translation: 'पार्किंग लॉट कुठे आहे?', transliteration: 'Parking lot kuthe aahe?', pronunciation: 'Paar-king lot koo-thay aa-he?' },
   ],
-Health: [
+  "Health": [
     { phrase: 'I feel sick', translation: 'माझं तब्येत बरी नाही', transliteration: 'Majha tabyet bari nahi', pronunciation: 'Maa-jhaa tab-yet ba-ree naa-hee' },
     { phrase: 'I have a fever', translation: 'माझं ताप आहे', transliteration: 'Majha taap aahe', pronunciation: 'Maa-jhaa taap aa-he' },
     { phrase: 'I need medicine', translation: 'मला औषधं हवी आहेत', transliteration: 'Mala aushadh havi aahet', pronunciation: 'Maa-la au-sha-dh ha-vee aa-het' },
@@ -108,6 +107,42 @@ Health: [
     { phrase: 'Where is the pharmacy?', translation: 'फार्मसी कुठे आहे?', transliteration: 'Pharmacy kuthe aahe?', pronunciation: 'Faar-ma-see koo-thay aa-he?' },
     { phrase: 'Can I get a health checkup?', translation: 'मी हेल्थ चेकअप करू शकतो का?', transliteration: 'Mi health checkup karu shakto ka?', pronunciation: 'Mee health check-up ka-roo shak-to ka?' },
     { phrase: 'I need an ambulance', translation: 'मला ॲम्ब्युलन्स हवी आहे', transliteration: 'Mala ambulance havi aahe', pronunciation: 'Maa-la aam-byoo-luns ha-vee aa-he' },
+  ],
+  "Socializing": [
+    { phrase: 'Can I join your group?', translation: 'तुमच्या समूहात माझी जोड घेऊ शकते का?', transliteration: 'Tumchyaa samuhaat maazhi jod gheu shakte ka?', pronunciation: 'Tum-chyaa sam-oo-haat maa-jee jod ghe-oo shak-te ka?' },
+    { phrase: 'What do you do for a living?', translation: 'तुम्ही काय करून जीवन जीतो?', transliteration: 'Tumhi kay karoon jivan jieto?', pronunciation: 'Tum-hee kaa-ee kar-oon jee-van jee-to?' },
+    { phrase: 'Do you have any hobbies?', translation: 'तुम्ही कोणत्या हॉबीस आहेत?', transliteration: 'Tumhi konatya hobbies aahet?', pronunciation: 'Tum-hee kon-tyaa hob-ees aa-het?' },
+    { phrase: 'Can you recommend a good book?', translation: 'तुम्ही चांगल्या किताब सुचवू शकता का?', transliteration: 'Tumhi changlya kitab suchavu shakta ka?', pronunciation: 'Tum-hee chang-lya ki-taab soo-cha-voo shak-taa ka?' },
+    { phrase: 'Do you like to travel?', translation: 'तुम्ही प्रवास केला जातो का?', transliteration: 'Tumhi pravas kela jaato ka?', pronunciation: 'Tum-hee pra-vaas ke-la jaa-to ka?' },
+    { phrase: 'What do you like to do in your free time?', translation: 'तुम्ही तुमच्या निसर्ग समयी काय करू इच्छितो?', transliteration: 'Tumhi tumchyaa nisarg samayee kay karu ichchhito?', pronunciation: 'Tum-hee tum-chyaa ni-sarg sa-may-ee kaa-ee kar-oo ich-chi-to?' },
+    { phrase: 'Can I give you my contact information?', translation: 'मला तुम्ही माझी संपर्क माहिती देणी शकते का?', transliteration: 'Mala tumhi maazhi sampark maahiti deyni shakte ka?', pronunciation: 'Maa-la tum-hee maa-jee sam-park ma-hi-tee dey-nee shak-te ka?' },
+    { phrase: 'Do you use social media?', translation: 'तुम्ही सोशल मीडिया वापरू का?', transliteration: 'Tumhi social media vaparuu ka?', pronunciation: 'Tum-hee so-shal me-dia va-pa-roo ka?' },
+    { phrase: 'Can we exchange numbers?', translation: 'आपण संख्या विनिमय करू शकतो का?', transliteration: 'Aapan sankhya vinimay karu shakto ka?', pronunciation: 'Aa-pan sankh-yaa vi-ni-may ka-roo shak-to ka?' },
+    { phrase: 'Do you have any plans for the weekend?', translation: 'तुम्ही सप्ताहांतीस कोणत्या योजनांस आहेत?', transliteration: 'Tumhi saptahaantis konatya yojanans aahet?', pronunciation: 'Tum-hee sap-taa-haan-tees kon-tyaa yoj-naans aa-het?' },
+  ],
+  "Work-Related": [
+    { phrase: 'Do you have any business hotels?', translation: 'तुम्ही कोणत्या व्यवसायिक होटेल्स आहेत?', transliteration: 'Tumhi konatya vyavsayik hotels aahet?', pronunciation: 'Tum-hee kon-tyaa vya-vsaay-ik ho-tels aa-het?' },
+    { phrase: 'Can you arrange a car rental?', translation: 'तुम्ही कार किरायेल व्यवस्थापन करू शकता का?', transliteration: 'Tumhi car kiraayel vyavsthapan karu shakta ka?', pronunciation: 'Tum-hee kar kee-raay-el vya-vs-thaa-pan ka-roo shak-taa ka?' },
+    { phrase: 'Do you have a meeting room?', translation: 'तुमच्याकडे मीटिंग रूम आहे का?', transliteration: 'Tumchyakade meeting room aahe ka?', pronunciation: 'Tum-chyaa-ka-day meet-ing room aa-he ka?' },
+    { phrase: 'Can you recommend a good restaurant for business?', translation: 'तुम्ही व्यवसायिक उद्देशासाठी चांगल्या रेस्टॉरंट सुचवू शकता का?', transliteration: 'Tumhi vyavsayik uddeshasathi changlya restaurant suchavu shakta ka?', pronunciation: 'Tum-hee vya-vsaay-ik udd-esh-saa-thee chang-lya rest-o-rant soo-cha-voo shak-taa ka?' },
+    { phrase: 'Do you have Wi-Fi?', translation: 'तुमच्याकडे वाई-फाई आहे का?', transliteration: 'Tumchyakade Wi-Fi aahe ka?', pronunciation: 'Tum-chyaa-ka-day vaay-fay aa-he ka?' },
+    { phrase: 'Can you arrange a conference call?', translation: 'तुम्ही कॉन्फरेन्स कॉल व्यवस्थापन करू शकता का?', transliteration: 'Tumhi conference call vyavsthapan karu shakta ka?', pronunciation: 'Tum-hee kon-fer-ens kol vya-vs-thaa-pan ka-roo shak-taa ka?' },
+    { phrase: 'Do you have a printer?', translation: 'तुमच्याकडे प्रिंटर आहे का?', transliteration: 'Tumchyakade printer aahe ka?', pronunciation: 'Tum-chyaa-ka-day print-er aa-he ka?' },
+    { phrase: 'Can you recommend a good coffee shop?', translation: 'तुम्ही चांगल्या कॉफी शॉप सुचवू शकता का?', transliteration: 'Tumhi changlya coffee shop suchavu shakta ka?', pronunciation: 'Tum-hee chang-lya ko-fee shop soo-cha-voo shak-taa ka?' },
+    { phrase: 'Do you have a fax machine?', translation: 'तुमच्याकडे फॅक्स मशीन आहे का?', transliteration: 'Tumchyakade fax machine aahe ka?', pronunciation: 'Tum-chyaa-ka-day fax ma-sheen aa-he ka?' },
+    { phrase: 'Can you arrange a translator?', translation: 'तुम्ही अनुवादक व्यवस्थापन करू शकता का?', transliteration: 'Tumhi anuvadak vyavsthapan karu shakta ka?', pronunciation: 'Tum-hee a-nu-va-dak vya-vs-thaa-pan ka-roo shak-taa ka?' },
+  ],
+  "Tech":  [
+    { phrase: 'My computer is not turning on', translation: 'माझं कंप्यूटर चालू नाही', transliteration: 'Majha computer chalu nahi', pronunciation: 'Maa-jhaa kom-pyoo-ter chaa-loo naa-hee' },
+    { phrase: 'I need help with my Wi-Fi', translation: 'माझ्या वाई-फाईस सोबत मदत आवश्यक आहे', transliteration: 'Majhya Wi-Fi sath madat avashyak aahe', pronunciation: 'Maa-jhyaa vaay-fay saath muh-dut aa-vash-yak aa-he' },
+    { phrase: 'My printer is not working', translation: 'माझं प्रिंटर कार्य करत नाही', transliteration: 'Majha printer kary kart nahi', pronunciation: 'Maa-jhaa print-er ka-ry kart naa-hee' },
+    { phrase: 'I need a new battery for my phone', translation: 'माझ्या फोनसाठी नवीन बॅटरी आवश्यक आहे', transliteration: 'Majhya phone sathi navin battery avashyak aahe', pronunciation: 'Maa-jhyaa phone saa-thee na-veen ba-ta-ree aa-vash-yak aa-he' },
+    { phrase: 'My software is not updating', translation: 'माझं सॉफ्टवेयर अपडेट होत नाही', transliteration: 'Majha software update hot nahi', pronunciation: 'Maa-jhaa soft-ware up-date hot naa-hee' },
+    { phrase: 'Can you help me with my email?', translation: 'माझ्या इमेलस सोबत मदत करू शकता का?', transliteration: 'Majhya email sath madat karu shakta ka?', pronunciation: 'Maa-jhyaa ee-mayl saath muh-dut ka-roo shak-taa ka?' },
+    { phrase: 'My keyboard is not responding', translation: 'माझं कीबोर्ड प्रतिसाद नाही', transliteration: 'Majha keyboard pratisad nahi', pronunciation: 'Maa-jhaa kee-board prati-saad naa-hee' },
+    { phrase: 'I need to reset my password', translation: 'माझं पासवर्ड पुन्हा सेट करावी लागेल', transliteration: 'Majha password punha set karavi laagel', pronunciation: 'Maa-jhaa paas-word puhn-haa set kar-a-vee laa-gel' },
+    { phrase: 'My screen is frozen', translation: 'माझं स्क्रीन फ्रेझ आहे', transliteration: 'Majha screen frez aahe', pronunciation: 'Maa-jhaa screen frez aa-he' },
+    { phrase: 'Can you help me with my software installation?', translation: 'माझ्या सॉफ्टवेयर स्थापनास सोबत मदत करू शकता का?', transliteration: 'Majhya software sthapanas sath madat karu shakta ka?', pronunciation: 'Maa-jhyaa soft-ware sthaa-pa-naas saath muh-dut ka-roo shak-taa ka?' },
   ],
 };
 

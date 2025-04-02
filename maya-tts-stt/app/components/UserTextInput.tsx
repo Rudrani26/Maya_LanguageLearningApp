@@ -11,21 +11,21 @@ import { Entypo, MaterialIcons } from "@expo/vector-icons";
 
 interface UserTextInputProps {
   placeholder: string;
-  isPass: boolean;
+  isPass?: boolean;
   setStateValue: (value: string) => void;
   setEmailValid?: (value: boolean) => void;
 }
 
 const UserTextInput: React.FC<UserTextInputProps> = ({
   placeholder,
-  isPass,
+  isPass = false,
   setStateValue,
   setEmailValid,
 }) => {
-  const [value, setValue] = useState<string>("");
-  const [showPass, setShowPass] = useState<boolean>(true);
-  const [icon, setIcon] = useState<string | null>(null);
-  const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
+  const [value, setValue] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [icon, setIcon] = useState<keyof typeof MaterialIcons.glyphMap | null>(null);
+  const [isEmailValid, setIsEmailValid] = useState(false);
 
   const handleTextChange = (text: string) => {
     setValue(text);
@@ -56,23 +56,36 @@ const UserTextInput: React.FC<UserTextInputProps> = ({
   }, [placeholder]);
 
   return (
-    <View style={[styles.Main, !isEmailValid && placeholder === "Email" && value.length > 0 ? styles.borderRed : styles.borderGray]
-    }>
-      {icon && <MaterialIcons name={icon as keyof typeof MaterialIcons.glyphMap} size={24} color={"#6c6d83"} />}
+    <View
+      style={[
+        styles.inputContainer,
+        placeholder === "Email" && value.length > 0 ?
+          (isEmailValid ? styles.borderGreen : styles.borderRed)
+          : styles.borderGray
+      ]}
+    >
+      {icon && (
+        <MaterialIcons name={icon} size={24} color="#6773FF" style={styles.icon} />
+      )}
+
       <TextInput
-        style={styles.field}
         placeholder={placeholder}
+        placeholderTextColor="#aaa"
+        secureTextEntry={isPass && showPass}
         value={value}
         onChangeText={handleTextChange}
-        secureTextEntry={isPass && showPass}
-        autoCapitalize="none"
+        style={styles.field}
       />
+
       {isPass && (
-        <TouchableOpacity onPress={() => setShowPass(!showPass)}>
+        <TouchableOpacity
+          onPress={() => setShowPass(!showPass)}
+          style={styles.eyeIcon}
+        >
           <Entypo
-            name={`${showPass ? "eye" : "eye-with-line"}`}
+            name={showPass ? "eye" : "eye-with-line"}
             size={24}
-            color={"#6c6d83"}
+            color="#6773FF"
           />
         </TouchableOpacity>
       )}
@@ -84,26 +97,43 @@ export default UserTextInput;
 
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
-  Main: {
+  inputContainer: {
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 20,
-    paddingVertical: 30,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    margin: 20,
-    borderColor: "#c7c9c9",
+    marginVertical: 10,
+    marginHorizontal: 20,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   field: {
-    width: width - 150,
+    flex: 1,
     fontFamily: "NunitoBold",
-    fontSize: 14,
+    fontSize: 16,
+    color: "#333",
+    paddingVertical: 8,
+  },
+  icon: {
+    marginRight: 12,
+  },
+  eyeIcon: {
+    marginLeft: 8,
   },
   borderRed: {
-    borderColor: "red",
+    borderColor: "#FF6B6B",
   },
   borderGray: {
-    borderColor: "#c7c9c9",
+    borderColor: "#E0E0E0",
+  },
+  borderGreen: {
+    borderColor: "#4CAF50",
   },
 });
