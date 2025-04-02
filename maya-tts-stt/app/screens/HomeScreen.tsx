@@ -52,9 +52,9 @@ const HomeScreen = () => {
     { name: 'Shopping', icon: require('../assets/icons/shopping.png'), page: 'Shopping' },
     { name: 'Sightseeing', icon: require('../assets/icons/sightseeing.png'), page: 'Sightseeing' },
     { name: 'Health & Emergencies', icon: require('../assets/icons/health.png'), page: 'Health' },
-    { name: 'Socializing & Networking', icon: require('../assets/icons/socializing.png'), page: 'SocializingNetworking' },
-    { name: 'Work-Related Travel', icon: require('../assets/icons/work-related.png'), page: 'WorkRelatedTravel' },
-    { name: 'Tech Support', icon: require('../assets/icons/technical-support.png'), page: 'TechSupport' },
+    { name: 'Socializing & Networking', icon: require('../assets/icons/socializing.png'), page: 'Socializing' },
+    { name: 'Work-Related Travel', icon: require('../assets/icons/work-related.png'), page: 'Work-Related' },
+    { name: 'Tech Support', icon: require('../assets/icons/technical-support.png'), page: 'Tech' },
   ];
 
   const culturalTips = [

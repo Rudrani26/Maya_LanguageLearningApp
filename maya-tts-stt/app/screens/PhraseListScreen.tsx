@@ -34,9 +34,9 @@ const APP_COLORS = {
     'Shopping',
     'Sightseeing',
     'Health',
-    'SocializingNetworking',
-    'WorkRelatedTravel',
-    'TechSupport'
+    'Socializing',
+    'Work-Related',
+    'Tech'
   ]
 };
 
@@ -59,9 +59,9 @@ const PhraseListScreen = () => {
       'Shopping': 'Shopping',
       'Sightseeing': 'Sightseeing',
       'Health': 'Health & Emergencies',
-      'SocializingNetworking': 'Socializing & Networking',
-      'WorkRelatedTravel': 'Work-Related Travel',
-      'TechSupport': 'Tech Support'
+      'Socializing': 'Socializing & Networking',
+      'Work-Related': 'Work-Related Travel',
+      'Tech': 'Tech Support'
     };
 
     setModuleName(moduleMapping[module as keyof typeof moduleMapping] || String(module));
@@ -127,7 +127,7 @@ const PhraseListScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.header}>{moduleName} in Marathi</Text>
+        <Text style={styles.header}>{moduleName}</Text>
       </View>
 
       {phrasesData.length > 0 ? (

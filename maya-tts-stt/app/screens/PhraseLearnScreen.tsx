@@ -33,9 +33,9 @@ const APP_COLORS = {
     'Shopping',
     'Sightseeing',
     'Health',
-    'SocializingNetworking',
-    'WorkRelatedTravel',
-    'TechSupport'
+    'Socializing',
+    'Work-Related',
+    'Tech'
   ]
 };
 
