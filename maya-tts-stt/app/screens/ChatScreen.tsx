@@ -28,29 +28,37 @@ import { firestoreDB } from "@/config/firebase.config";
 import { useSelector } from "react-redux";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useLocalSearchParams } from "expo-router";
+import Color, { ColorLike } from "color";
 
 const ChatScreen = () => {
-  const route = useRoute();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<DocumentData[]>([]);
   const user = useSelector((state: { user: { user: any } }) => state.user.user);
   const textInputRef = useRef(null);
-  // const { room, image } = route.params;
-
   const storage = getStorage();
   const params = useLocalSearchParams();
-  console.log("Params:", params);
-  // const { room } = useLocalSearchParams();
+
+  // Parse room data
   const room = params.room ? JSON.parse(params.room as string) : null;
   const image = params.image ? JSON.parse(params.image as string) : null;
 
+  const avatarColor = params.avatarColor ? params.avatarColor as string : "#3884fd";
 
-  console.log("Room Data:", room);
+  const getColorVariations = (baseColor: ColorLike | undefined) => {
+    const color = Color(baseColor);
+    return {
+      header: color.hex(),
+      background: color.alpha(0.1).lightness(95).hex(),
+      myMessage: color.darken(0.1).hex(),
+      otherMessage: color.lighten(0.3).hex(),
+      inputBackground: color.lighten(0.4).hex(),
+    };
+  };
 
+  const colors = getColorVariations(avatarColor);
 
-  console.log("Room Data:", room);
   useLayoutEffect(() => {
     if (!room || !room._id) {
       console.error("No room data found", room);
@@ -84,6 +92,8 @@ const ChatScreen = () => {
   };
 
   const sendMessage = async (imageUrl: string | null = null) => {
+    if (!message.trim() && !imageUrl) return;
+
     const timeStamp = serverTimestamp();
     const id = `${Date.now()}`;
     const _doc = {
@@ -101,6 +111,7 @@ const ChatScreen = () => {
       _doc
     ).catch((err) => alert(err));
   };
+
   const handleSendImage = () => {
     if (image) {
       uploadImageAndSendMessage(image);
@@ -110,13 +121,13 @@ const ChatScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.header }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="chevron-left" size={32} color={"#fff"} />
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
-          <Text style={styles.headerText}>{room.chatName}</Text>
+          <Text style={styles.headerText}>{room?.chatName}</Text>
         </View>
       </View>
 
@@ -130,80 +141,86 @@ const ChatScreen = () => {
             <ScrollView>
               {isLoading ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size={"large"} color={"#43C651"} />
+                  <ActivityIndicator size={"large"} color={colors.header} />
                 </View>
               ) : (
-                messages?.map((msg, i) => (
-                  <View
-                    key={i}
-                    style={[
-                      styles.message,
-                      {
-                        alignSelf:
-                          msg.user?.providerData?.email ===
-                            user?.providerData?.email
-                            ? "flex-end"
-                            : "flex-start",
-                        flexDirection:
-                          msg.user?.providerData?.email ===
-                            user?.providerData?.email
-                            ? "row-reverse"
-                            : "row",
-                      },
-                    ]}
-                  >
-                    {msg.user?.providerData?.email !==
-                      user?.providerData?.email && (
-                        <Image
-                          source={{ uri: "path_to_default_profile_image" }} // Update to the correct path or a default image
-                          style={styles.profileImage}
-                        />
-                      )}
-                    <View>
-                      <Text style={styles.userName}>
-                        {msg.user?.fullName || "Unknown"}
+                <>
+                  {messages.length > 0 ? (
+                    messages?.map((msg, i) => {
+                      const isMyMessage = msg.user?.providerData?.email === user?.providerData?.email;
+                      const messageBubbleColor = isMyMessage ? colors.myMessage : colors.otherMessage;
+
+                      return (
+                        <View
+                          key={i}
+                          style={[
+                            styles.message,
+                            {
+                              alignSelf: isMyMessage ? "flex-end" : "flex-start",
+                              flexDirection: isMyMessage ? "row-reverse" : "row",
+                            },
+                          ]}
+                        >
+                          {!isMyMessage && (
+                            <Image
+                              source={{ uri: "path_to_default_profile_image" }}
+                              style={styles.profileImage}
+                            />
+                          )}
+                          <View>
+                            <Text style={styles.userName}>
+                              {msg.user?.fullName || "Unknown"}
+                            </Text>
+                            <View
+                              style={[
+                                styles.messageBubble,
+                                { backgroundColor: messageBubbleColor },
+                              ]}
+                            >
+                              <Text style={[
+                                styles.messageText,
+                                { color: isMyMessage ? "#FFFFFF" : "#000000" }
+                              ]}>
+                                {msg.message}
+                              </Text>
+                              {msg.image && (
+                                <Image
+                                  source={{ uri: msg.image }}
+                                  style={styles.messageImage}
+                                />
+                              )}
+                            </View>
+                            <View style={styles.timeContainer}>
+                              {msg?.timeStamp?.seconds && (
+                                <Text style={styles.timeText}>
+                                  {new Date(
+                                    msg?.timeStamp?.seconds * 1000
+                                  ).toLocaleTimeString("en-US", {
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    hour12: true,
+                                  })}
+                                </Text>
+                              )}
+                            </View>
+                          </View>
+                        </View>
+                      );
+                    })
+                  ) : (
+                    <View style={styles.emptyMessagesContainer}>
+                      <Text style={styles.emptyMessagesText}>No messages yet</Text>
+                      <Text style={styles.emptyMessagesSubText}>
+                        Be the first to send a message!
                       </Text>
-                      <View
-                        style={[
-                          styles.messageBubble,
-                          {
-                            backgroundColor:
-                              msg.user?.providerData?.email ===
-                                user?.providerData?.email
-                                ? "#43C651" // Replace with your secondary color
-                                : "#E0E0E0", // Replace with your gray color
-                          },
-                        ]}
-                      >
-                        <Text style={styles.messageText}>{msg.message}</Text>
-                        {msg.image && (
-                          <Image
-                            source={{ uri: msg.image }}
-                            style={styles.messageImage}
-                          />
-                        )}
-                      </View>
-                      <View style={styles.timeContainer}>
-                        {msg?.timeStamp?.seconds && (
-                          <Text style={styles.timeText}>
-                            {new Date(
-                              msg?.timeStamp?.seconds * 1000
-                            ).toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "numeric",
-                              hour12: true,
-                            })}
-                          </Text>
-                        )}
-                      </View>
                     </View>
-                  </View>
-                ))
+                  )}
+                </>
               )}
             </ScrollView>
 
             <View style={styles.inputContainer}>
-              <View style={styles.inputWrapper}>
+              <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground }]}>
                 <TouchableOpacity>
                   <Entypo name="emoji-happy" size={24} color="#555" />
                 </TouchableOpacity>
@@ -218,14 +235,14 @@ const ChatScreen = () => {
                 />
 
                 <TouchableOpacity>
-                  <Entypo name="mic" size={24} color="#43C651" />
+                  <Entypo name="mic" size={24} color={colors.header} />
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                style={styles.sendButton}
+                style={[styles.sendButton, { backgroundColor: colors.header }]}
                 onPress={handleSendImage}
               >
-                <FontAwesome name="send" size={24} color="#555" />
+                <FontAwesome name="send" size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
           </>
@@ -244,25 +261,25 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    height: "20%",
-    backgroundColor: "#3884fd",
+    height: Platform.OS === "ios" ? 120 : 100,
     paddingHorizontal: 16,
-    paddingVertical: 50,
+    paddingTop: Platform.OS === "ios" ? 60 : 40,
+    paddingBottom: 10,
     flexDirection: "row",
+    alignItems: "center",
   },
   headerTextContainer: {
     paddingLeft: 16,
   },
   headerText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#fff",
   },
   messageContainer: {
     width: "100%",
-    backgroundColor: "#fff",
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingVertical: 16,
     flex: 1,
   },
   keyboardAvoiding: {
@@ -272,74 +289,93 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 20,
   },
   message: {
     marginVertical: 4,
     flexDirection: "row",
+    maxWidth: "85%",
   },
   profileImage: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    marginLeft: 8,
+    marginHorizontal: 8,
   },
   userName: {
     fontSize: 12,
-    color: "black",
+    color: "#666",
     fontWeight: "600",
+    marginBottom: 2,
   },
   messageBubble: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    width: "auto",
-    position: "relative",
+    paddingVertical: 10,
+    borderRadius: 20,
+    maxWidth: "100%",
   },
   messageText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "black",
+    fontWeight: "500",
   },
   messageImage: {
     width: 150,
     height: 150,
     borderRadius: 10,
-    marginTop: 5,
+    marginTop: 8,
   },
   timeContainer: {
     alignSelf: "flex-end",
+    marginTop: 2,
+    marginRight: 4,
   },
   timeText: {
-    fontSize: 12,
-    color: "black",
-    fontWeight: "600",
+    fontSize: 10,
+    color: "#777",
   },
   inputContainer: {
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    alignItems: "center",
+    marginTop: 10,
+    paddingBottom: Platform.OS === "ios" ? 30 : 10,
   },
   inputWrapper: {
     flex: 1,
-    backgroundColor: "#E0E0E0",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 10,
   },
   textInput: {
     flex: 1,
     height: 40,
     fontSize: 16,
     color: "#000",
+    marginHorizontal: 10,
   },
   sendButton: {
-    paddingLeft: 16,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyMessagesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 50,
+  },
+  emptyMessagesText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#555",
+  },
+  emptyMessagesSubText: {
+    fontSize: 14,
+    color: "#777",
+    marginTop: 8,
   },
 });
