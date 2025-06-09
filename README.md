@@ -1,7 +1,3 @@
-# Maya
-
-Marathi Language Learning App for Tourists
-
 # Maya – Your Marathi Learning App
 Maya is an AI-powered, mobile-first language learning app designed to help users—especially tourists—learn conversational Marathi in an engaging and culturally informed way. Through speech interaction, real-time feedback, AI chatbot assistance, and a vibrant community forum, Maya creates a holistic language learning experience.
 
